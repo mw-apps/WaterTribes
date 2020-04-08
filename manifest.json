@@ -2,13 +2,11 @@
   "short_name": "WaterTribes",
   "name": "Water Tribes",
   "description": "Phaser3 html5 Game",
-  "launch_path": "index.html",
   "start_url": "/?mode=PWA",
-  "background_color": "#7bb4f2",
   "display": "fullscreen",
   "orientation": "landscape",
-  "scope": "/",
-  "theme_color": "#7bb4f2",
+  "theme_color": "#000000",
+  "background_color": "#7bb4f2",
   "icons": [
     {
       "src": "assets/icons/icon_192.png",
