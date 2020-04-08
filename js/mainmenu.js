@@ -75,21 +75,19 @@ class cMainMenu extends Phaser.Scene {
                 urlParams[decode(match[1])] = decode(match[2]);
             }
             console.log("check urlParams", urlParams, window.location.search.substring(1), window.location);
-            
+
             if (urlParams["mode"] == "PWA") {
                 console.log("This is running as PWA.");
             } else {
                 //PWA button
-                var pwaButton = this.newSprite(tWidth - 100, -150, "pwa", 0, "images", "emptyBubble", 0.5);
-                //this.infoContainer.remove(pwaButton, false);
+                var pwaButton = this.newSprite(tWidth - 300, -150, "pwa", 0, "images", "emptyBubble", 0.5, false);
                 pwaButton.scale = 2;
                 pwaButton.on('pointerup', function () {
                     if (window.promptEvent) { window.promptEvent.prompt(); }
                     pwaButton.clearTint();
                     console.log("os:", this.sys.game.device.os, "browser:", this.sys.game.device.browser);
                 }.bind(this));
-                var pwaText = this.newText(tWidth - 100, -100, "Play this Game as a\nPWA-App, for best\nUserexpereance &\nPerformance", { font: '20px Arial', fill: "black" }, 0.5);
-                //this.infoContainer.remove(pwaText, false);
+                var pwaText = this.newText(tWidth - 300, -100, "Play this Game as a\nPWA-App, for best\nUserexpereance &\nPerformance", { font: '20px Arial', fill: "black" }, 0.5, false);
                 this.tweens.add({
                     targets: [pwaButton, pwaText],
                     y: pwaButton.displayHeight / 2 - 50,
@@ -467,7 +465,7 @@ class cMainMenu extends Phaser.Scene {
             i--;
         }
     }
-    newText(x, y, value, style, origin = 0.5) {
+    newText(x, y, value, style, origin = 0.5, addToInfoContainer = true) {
         var text = this.textGroup.getFirstDead(0, 0, false);
         if (text == undefined) { text = 0 }; //in case there is no dead element, header must be != null
         if (text.type == "Text") {
@@ -481,13 +479,13 @@ class cMainMenu extends Phaser.Scene {
             this.textGroup.add(text);
         }
         text.setOrigin(origin);
-        this.infoContainer.add(text);
+        if (addToInfoContainer) { this.infoContainer.add(text); }
         return text;
     }
-    newSprite(x, y, name, nr, image, key, origin = 0.5) {
+    newSprite(x, y, name, nr, image, key, origin = 0.5, addToInfoContainer = true) {
         var button = this.spriteGroup.get(x, y, image, key);
         button.setTexture(image, key);
-        this.infoContainer.add(button);
+        if (addToInfoContainer) { this.infoContainer.add(button); }
         button.visible = true;
         button.active = true;
         button.name = name;

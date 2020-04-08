@@ -631,7 +631,7 @@ class cMiniMap extends Phaser.Scene {
 
     }
 
-    newText(x, y, value, style, origin = 0.5) {
+    newText(x, y, value, style, origin = 0.5, addToInfoContainer = true) {
         var text = this.textGroup.getFirstDead(0, 0, false);
         if (text == undefined) { text = 0 }; //in case there is no dead element, header must be != null
         if (text.type == "Text") {
@@ -645,7 +645,7 @@ class cMiniMap extends Phaser.Scene {
             this.textGroup.add(text);
         }
         text.setOrigin(origin);
-        this.infoContainer.add(text);
+        if (addToInfoContainer) { this.infoContainer.add(text); }
         return text;
     }
     newSprite(x, y, name, nr, image, key, origin = 0.5, addToInfoContainer = true) {
@@ -665,19 +665,19 @@ class cMiniMap extends Phaser.Scene {
             case "aiHelp":
                 break; //cancel
             case "plateBack":
-                button.on('pointerover', function () { 
+                button.on('pointerover', function () {
                     this.setTint("0xaaaaaa");
-                 })
-                button.on('pointerout', function () { 
-                    this.clearTint(); 
+                })
+                button.on('pointerout', function () {
+                    this.clearTint();
                 });
                 break;
             default:
-                button.on('pointerover', function () { 
-                    this.setTint("0xed5400"); 
+                button.on('pointerover', function () {
+                    this.setTint("0xed5400");
                 })
-                button.on('pointerout', function () { 
-                    this.clearTint(); 
+                button.on('pointerout', function () {
+                    this.clearTint();
                 });
                 break;
         }
