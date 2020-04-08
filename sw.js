@@ -1,31 +1,30 @@
 ﻿//workbox.precaching.precacheAndRoute(__precacheManifest)
 
-var cacheName = 'phaser-v1';
+var cacheName = 'phaser-v2';
 var filesToCache = [
-    '/',
-    '/index.html',
-    '/favicon.png',
-    '/manifest.json',
-    '/sw.js',
-    '/assets/icons/icon_192.png',
-    '/assets/icons/icon_512.png',
-    '/assets/spritesheets/imageAtlas.json',
-    '/assets/spritesheets/imageAtlas.png',
-    '/assets/back.png',
-    '/assets/gameSettings.json',
-    '/js/node_modules/phaser.min.js',
-    '/js/node_modules/rexgesturesplugin.min.js',
-    '/js/app.js',
-    '/js/game.js',
-    '/js/mainmenu.js',
-    '/js/minimap.js'
+    'index.html',
+    'favicon.png',
+    'manifest.json',
+    'sw.js',
+    'assets/icons/icon_192.png',
+    'assets/icons/icon_512.png',
+    'assets/spritesheets/imageAtlas.json',
+    'assets/spritesheets/imageAtlas.png',
+    'assets/back.png',
+    'assets/gameSettings.json',
+    'js/node_modules/phaser.min.js',
+    'js/node_modules/rexgesturesplugin.min.js',
+    'js/app.js',
+    'js/game.js',
+    'js/mainmenu.js',
+    'js/minimap.js'
 ];
 
 self.addEventListener('install', function (event) {
-    //console.log('sw install');
+    console.log('sw install');
     event.waitUntil(
         caches.open(cacheName).then(function (cache) {
-            //console.log('sw caching files');
+            console.log('sw caching files', filesToCache);
             return cache.addAll(filesToCache);
         }).catch(function (err) {
             console.log(err);
@@ -34,8 +33,7 @@ self.addEventListener('install', function (event) {
 });
 
 self.addEventListener('fetch', (event) => {
-    //console.log('sw fetch');
-    //console.log(event.request.url);
+    console.log('sw fetch', event.request.url);
     event.respondWith(
         caches.match(event.request).then(function (response) {
             return response || fetch(event.request);
@@ -46,7 +44,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('activate', function (event) {
-    //console.log('sw activate');
+    console.log('sw activate');
     event.waitUntil(
         caches.keys().then(function (keyList) {
             return Promise.all(keyList.map(function (key) {

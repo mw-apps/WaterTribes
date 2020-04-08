@@ -74,7 +74,7 @@ class cMainMenu extends Phaser.Scene {
             while (match = search.exec(query)) {
                 urlParams[decode(match[1])] = decode(match[2]);
             }
-            console.log("check urlParams", urlParams, window.location.search.substring(1), window.location);
+            //console.log("check urlParams", urlParams, window.location.search.substring(1), window.location);
 
             if (urlParams["mode"] == "PWA") {
                 console.log("This is running as PWA.");
