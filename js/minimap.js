@@ -1,0 +1,719 @@
+﻿/// <reference path="node_modules/phaser.js" />
+
+class cMiniMap extends Phaser.Scene {
+    constructor() {
+        super("miniMap");
+        this.aaaaa = "miniMap";
+        this.gameSpeed = 1;
+        this.mute = false;
+        this.tribeAi = 0;
+        this.gameScene;
+        this.infoContainer;
+        this.spriteGroup;
+        this.textGroup;
+        this.plate;
+        this.miniMapBubble;
+        this.mobile = false;
+    }
+
+    create() {
+        this.gameSpeed = 1;
+        this.mute = false;
+        this.tribeAi = 0;
+        var x = this.scale.width - 120;
+        var y = this.scale.height - 120;
+        var iLine = new Phaser.Geom.Line();
+
+        //infoPlate (islandinfo, statistics, and so on)
+        this.infoContainer = this.add.container();
+        this.spriteGroup = this.add.group();
+        this.textGroup = this.add.group();
+        this.plate = this.add.graphics();
+        this.infoContainer.add(this.plate);
+        this.infoContainer.visible = false;
+
+        //differ between mobile and desktop (action-button size)
+        if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
+            this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle) {
+            this.mobile = true;
+        }
+
+        this.miniMapBubble = this.add.sprite(0, 0, "images", 'emptyBubble');
+        this.miniMapBubble.setOrigin(0.5, 0.5);
+        this.miniMapBubble.alpha = 0.6;
+        if (this.mobile == true) { this.miniMapBubble.scale = 2; } else { this.miniMapBubble.scale = 1.6; }
+        this.miniMapBubble.x = x;
+        this.miniMapBubble.y = y;
+        //property-circle
+        this.miniMap = this.add.graphics();
+        this.miniMap.alpha = 0.8;
+
+        //create some action-buttons around the minimap
+        this.bubbleGroup = this.add.group();
+        for (var i = 1; i < 6; i++) {
+            var temp = "";
+            var angle = 0;
+            switch (i) {
+                case 1: temp = "play"; angle = 2.7; break;
+                case 2: temp = "mute"; angle = 3.25; break;
+                case 3: temp = "statistics"; angle = 3.8; break;
+                case 4: temp = "bot"; angle = 4.35; break;
+                case 5: temp = "exit"; angle = 4.9; break;
+                default: console.log("create action-buttons error", i);
+            }
+            var button = this.newSprite(x, y, "actionBubble", i, "images", temp, 0.5, false);
+            if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+            Phaser.Geom.Line.SetToAngle(iLine, x, y, angle, this.miniMapBubble.displayWidth / 2 + button.displayWidth / 1.5);
+            button.x = iLine.x2;
+            button.y = iLine.y2;
+            button.on('pointerup', function (button) {
+                //console.log("pUp", this, button); 
+                this.clickOptionButton(button);
+            }.bind(this, button));
+            this.bubbleGroup.add(button);
+        }
+
+        // Listen for events from gameScene
+        this.gameScene = this.scene.get('playGame');
+        this.gameScene.events.on('toMiniMapMsg', function (data) {
+            this.newMessage(data);
+        }, this);
+        this.gameScene.events.emit('toGameMsg', { type: 'init' });
+    }
+
+    newMessage(data) {
+        //console.log("miniMap_newMessage", this, data);
+        switch (data.type) {
+            case 'init':
+                this.gameSpeed = data.gameSpeed;
+                this.updateButtonTexture(this.bubbleGroup.children.entries[0]);
+                this.mute = data.mute;
+                this.updateButtonTexture(this.bubbleGroup.children.entries[1]);
+                this.tribeAi = data.tribeAi;
+                this.updateButtonTexture(this.bubbleGroup.children.entries[3]);
+                this.updateMiniMap();
+                break;
+            case 'newIsland':
+                this.updateMiniMap();
+                this.checkEndGame();
+                break;
+            case 'islandInfo':
+                this.setInfoPlate({ type: 'islandInfo', island: data.island });
+                break;
+            default:
+                console.log("miniMap_newMessage_error", this, data);
+                break;
+        }
+    }
+
+    update(time, delta) {
+
+    }
+
+    updateMiniMap() {
+        var startAngle = 1.5 * Math.PI;
+        var tribeAngle = 0;
+        var i;
+        var segments = [];
+        var sortSegment;
+        var width = this.miniMapBubble.displayWidth;
+        var tIsland;
+
+        this.miniMap.clear();
+
+        //console.log('updateMiniMap', this.gameScene.tribes, this.gameScene.islandGroup, this.gameScene.cam);
+        //segments are the parts of the circle around the minimap, to show wich player is the best
+        segments.push({ "nr": 0, 'angle': 2 * Math.PI, 'color': this.gameScene.tribes[0].color });
+
+        //calculate each segment
+        for (i = 1; i < this.gameScene.tribes.length; i++) {
+            tribeAngle = (1 / this.gameScene.islandGroup.children.entries.length) * (2 * Math.PI) * this.gameScene.tribes[i].islands.length;
+            segments.push({ "nr": i, 'angle': tribeAngle, 'color': this.gameScene.tribes[i].color });
+            segments[0].angle -= tribeAngle;
+        }
+
+        //sort the segments, top down
+        var swapped;
+        do {
+            swapped = false;
+            for (i = 2; i < this.gameScene.tribes.length; i++) {
+                if (segments[i - 1].angle < segments[i].angle) {
+                    sortSegment = segments[i - 1];
+                    segments[i - 1] = segments[i];
+                    segments[i] = sortSegment;
+                    swapped = true;
+                }
+            }
+        } while (swapped == true);
+
+        //draw each segment
+        for (i = 1; i < this.gameScene.tribes.length; i++) {
+            this.miniMap.beginPath();
+            this.miniMap.lineStyle(10, segments[i].color, 1);
+            this.miniMap.arc(this.miniMapBubble.x, this.miniMapBubble.y - 7, width / 2 - 7, startAngle, startAngle + segments[i].angle, false);
+            startAngle += segments[i].angle;
+            this.miniMap.strokePath();
+        }
+        //fill the rest with white
+        this.miniMap.beginPath();
+        this.miniMap.lineStyle(10, '0xffffff', 1);
+        this.miniMap.arc(this.miniMapBubble.x, this.miniMapBubble.y - 7, width / 2 - 7, startAngle, startAngle + segments[0].angle, false);
+        this.miniMap.strokePath();
+
+        //paint the islands on the minimap-bubble
+        var mmX = (width - 50) / this.scale.width;
+        var mmY = (width - 50) / this.scale.height;
+        var mmScale;
+        var px;
+        var py;
+        if (mmX < mmY) { mmScale = mmX; } else { mmScale = mmY; }
+        for (i = 0; i < this.gameScene.islandGroup.children.entries.length; i++) {
+            tIsland = this.gameScene.islandGroup.children.entries[i];
+            px = mmX * tIsland.x + this.miniMapBubble.x - width / 2 + 25;
+            py = mmY * tIsland.y + this.miniMapBubble.y - width / 2 + 25;
+            //console.log("updateMiniMap_Islands", px, py, mmScale, tIsland);
+            this.miniMap.fillStyle(this.gameScene.tribes[tIsland.tribe].color, 1);
+            this.miniMap.fillCircleShape(new Phaser.Geom.Circle(px, py, 5));
+        }
+    };
+
+    checkEndGame() {
+        var activeTribes = 0;
+        var lstTribe = 0;
+        for (var i = 1; i < this.gameScene.tribes.length; i++) {
+            if (this.gameScene.tribes[i].islands.length > 0) {
+                activeTribes++;
+                lstTribe = i;
+            }
+        }
+        if (activeTribes == 1) { this.endGame(lstTribe); }   //toDo: perhaps end game if player has lost, now end game when there is only one player left
+        //console.log("checkEndGame");
+    }
+
+    endGame(winner) {
+        //pause game
+        this.gameSpeed = 0;
+        this.gameScene.events.emit('toGameMsg', { type: 'update', gameSpeed: this.gameSpeed });
+        this.updateButtonTexture(this.bubbleGroup.children.entries[0]);
+
+        //end game (no update on play/doublespeed/pause)
+        this.gameScene.status = "end";
+        this.saveGameStats(winner);
+        //show the statistics
+        this.setInfoPlate({ type: 'statistics', statistics: this.gameScene.statistics, subtype: 'islands' });
+    }
+
+    //save this actual game
+    saveGame() {
+        var saveObject = {
+            tribes: this.gameScene.tribes,
+            islands: this.gameScene.islandGroup.children.entries,
+            statistics: this.gameScene.statistics
+        };
+        localStorage.setItem("save", JSON.stringify(saveObject));
+        console.log("saveGame", JSON.parse(localStorage.getItem("saveGame")));
+    }
+
+    //updateRanking (games played total, ...)
+    saveGameStats(tribeNr) {
+        var type;
+        if (tribeNr == 1) {
+            type = "win"
+        } else {
+            type = "loss"
+        }
+
+        var saveObject = JSON.parse(localStorage.getItem("stats"));
+        if (saveObject == undefined) {
+            var saveObject = {
+                gamesTotal: 0,
+                enemysTotal: 0,
+                timeTotal: 0,
+                win: 0,
+                loss: 0,
+                enemysWonTotal: 0,
+                enemysLostTotal: 0,
+                actualStreak: 0,
+                longestWinStreak: 0,
+                longestLossStreak: 0,
+                fastestWin: 0,
+                fastestLoss: 0,
+                longestWin: 0,
+                longestLoss: 0
+            };
+        }
+        var diffTime = (this.gameScene.statistics[this.gameScene.statistics.length - 1].time - this.gameScene.statistics[0].time);
+        saveObject.gamesTotal++;
+        saveObject.enemysTotal += this.gameScene.tribes.length - 2;
+        saveObject.timeTotal += diffTime;
+        if (type == "win") {
+            saveObject.win += 1;
+            saveObject.enemysWonTotal += this.gameScene.tribes.length - 2;
+            if (saveObject.actualStreak > 0) {
+                saveObject.actualStreak++;
+            } else {
+                saveObject.actualStreak = 1;
+            }
+            if (saveObject.longestWinStreak < saveObject.actualStreak) {
+                saveObject.longestWinStreak = saveObject.actualStreak;
+            }
+            if (saveObject.fastestWin > diffTime || saveObject.fastestWin == 0) { saveObject.fastestWin = diffTime; }
+            if (saveObject.longestWin < diffTime) { saveObject.longestWin = diffTime; }
+        } else {
+            saveObject.loss += 1;
+            saveObject.enemysLostTotal += this.gameScene.tribes.length - 2;
+            if (saveObject.actualStreak < 0) {
+                saveObject.actualStreak--;
+            } else {
+                saveObject.actualStreak = -1;
+            }
+            if (saveObject.longestLossStreak > saveObject.actualStreak) {
+                saveObject.longestLossStreak = saveObject.actualStreak;
+            }
+            if (saveObject.fastestLoss > diffTime || saveObject.fastestLoss == 0) { saveObject.fastestLoss = diffTime; }
+            if (saveObject.longestLoss < diffTime) { saveObject.longestLoss = diffTime; }
+        }
+        localStorage.setItem("stats", JSON.stringify(saveObject));
+        //console.log("saveStats", JSON.parse(localStorage.getItem("stats")));
+    }
+
+    clickOptionButton(button) {
+        //console.log("clickOptionButton", this, button);
+        switch (button.nr) {
+            case 1: // play, fastforward, pause
+                if (this.gameScene.status != "playing") { return; }
+                this.gameSpeed += 1;
+                if (this.gameSpeed > 2) { this.gameSpeed = 0 };
+                console.log('gameSpeed', this.gameSpeed);
+                this.gameScene.events.emit('toGameMsg', { type: 'update', gameSpeed: this.gameSpeed });
+                break;
+            case 2: //mute
+                this.mute = !this.mute;
+                console.log('mute', this.mute);
+                this.gameScene.events.emit('toGameMsg', { type: 'update', mute: this.mute });
+                break;
+            case 3: //statistics
+                //pause game
+                this.gameSpeed = 0;
+                this.gameScene.events.emit('toGameMsg', { type: 'update', gameSpeed: this.gameSpeed });
+                this.updateButtonTexture(this.bubbleGroup.children.entries[0]);
+                //show the statistics
+                this.setInfoPlate({ type: 'statistics', statistics: this.gameScene.statistics, subtype: 'islands' });
+                break;
+            case 4: //TribeAI on/off
+                //this.tribeAi = !this.tribeAi;
+                //console.log('tribe_ai', this.tribeAi);
+                //this.gameScene.events.emit('toGameMsg', { type: 'update', tribeAi: this.tribeAi });
+                this.setInfoPlate({ type: 'aiHelp', statistics: this.gameScene.statistics });
+                break;
+            case 5: //exit game
+                //pause game
+                this.gameSpeed = 0;
+                this.gameScene.events.emit('toGameMsg', { type: 'update', gameSpeed: this.gameSpeed });
+                this.updateButtonTexture(this.bubbleGroup.children.entries[0]);
+                //quit confirm
+                this.setInfoPlate({ type: 'exit' });
+                break;
+            default:
+                console.log("clickOptionButton_error", this, button);
+        }
+        this.updateButtonTexture(button);
+    };
+
+    updateButtonTexture(button) {
+        switch (button.nr) {
+            case 1: // play, fastforward, pause
+                if (this.gameSpeed == 1) {
+                    button.setTexture('images', 'play');
+                } else if (this.gameSpeed == 2) {
+                    button.setTexture('images', 'fast');
+                } else {
+                    button.setTexture('images', 'pause');
+                }
+                break;
+            case 2: //mute
+                if (this.mute == true) {
+                    button.setTexture('images', 'mute');
+                } else {
+                    button.setTexture('images', 'sound');
+                }
+                break;
+            case 3: //statistic
+            case 4: //ai
+            case 5: //exit
+                break;
+            default:
+                console.log("updateButtonTexture_error", this, button);
+        }
+    };
+
+    setInfoPlate(data) {
+        //console.log("setInfoPlate", data, this, this.infoContainer);
+        //set the width and height
+        switch (data.type) {
+            case 'islandInfo':
+                data.width = 550;
+                data.height = 430;
+                break;
+            case "statistics":
+                data.width = this.scale.width - 100;
+                data.height = this.scale.height - 300;
+                break;
+            case 'exit':
+                data.width = 450;
+                data.height = 330;
+                break;
+            case 'aiHelp':
+                data.width = 450;
+                data.height = 330;
+                break;
+            default:
+        }
+
+        var x = this.scale.width + 200;  //startposition outside of the screen
+        var y = this.scale.height / 2 - data.height / 2 - 20;   //in the middle of the y-axis
+        this.plate.visible = true;
+        this.plate.active = true;
+        if (this.infoContainer.visible == true) {        //ToDo
+            //infoPlate is visible, so there is no tween necessary
+            x -= data.width;
+            this.removeInfoPlate();
+            this.infoContainer.visible = true; //set back to visible, because in "removeInfoPlate" it is set to false
+        } else {
+            this.infoContainer.x = 0;
+            this.plate.x = 0;
+        }
+
+        //Background
+        this.plate.fillStyle('0xd2e0f4', 1);
+        this.plate.fillRect(x, y, data.width, data.height);
+        //Border
+        this.plate.lineStyle(5, '0xe2f1ff', 1); //white
+        this.plate.strokeRect(x + 2, y + 2, data.width - 4, data.height - 4);
+        //back button
+        var button = this.newSprite(x, y + data.height / 2 - 50, "plateBack", 0, "backButton", "", 0.1);
+        if (this.mobile == true) { button.scale = 1.5; } else { button.scale = 1.2 }
+        button.on('pointerup', function (button, data) {
+            this.tweenInfoPlate(-data.width, 700);
+            this.time.addEvent({
+                delay: 700, callback: function () {
+                    this.removeInfoPlate();
+                }, callbackScope: this
+            });
+        }.bind(this, button, data));
+        //console.log("setinfoplate", type, data, x, y, this);
+        //differ between the different types of information
+        switch (data.type) {
+            case 'islandInfo':
+                //Header
+                this.newText(x + 30, y + 20, 'Island Info', { font: 'bold 24px Arial', fill: "black" }, 0);
+                //separator
+                this.plate.fillStyle('0x7bb4f2', 1);
+                this.plate.fillRoundedRect(x + 30, y + 50, data.width, 5, 2);
+
+                //infotext
+                var tIsland = data.island;
+                var iInfo =
+                    "Name: " + tIsland.name + "\n" +
+                    "Nr: " + tIsland.nr + "\n" +
+                    "Scale: " + tIsland.scale + "\n" +
+                    "buildState: " + tIsland.buildState + "\n" +
+                    "buildSpeed: " + tIsland.buildSpeed + "\n" +
+                    "currBuild: " + tIsland.currentBuild + "\n" +
+                    "currBuildConstTime: " + tIsland.currentBuildConstTime.toFixed(0) + "\n" +
+                    "currBuildConstMax: " + tIsland.currentBuildConstMax + "\n" +
+                    "population: " + tIsland.population.toFixed(3) + "\n" +
+                    "populationRate: " + tIsland.populationRate.toFixed(3) + "\n" +
+                    "defence: " + tIsland.defence.toFixed(3) + "\n" +
+                    "attack: " + tIsland.attack.toFixed(3) + "\n" + "\n" +
+                    "player: " + this.gameScene.tribes[tIsland.tribe].name + "\n" +
+                    "Ai-Level: " + this.gameScene.tribes[tIsland.tribe].aiLevel;
+                this.newText(x + 30, y + 60, iInfo, { font: 'bold 20px Arial', fill: "black" }, 0);
+
+                break;
+            case 'statistics':
+                //statistic-plate
+                var graph = this.add.graphics();
+                this.infoContainer.add(graph);
+                //Header
+                this.newText(x + 30, y + 20, 'statistics', { font: 'bold 28px Arial', fill: "black" }, 0);
+                //duration
+                var startTime = data.statistics[0].time;
+                var endTime = data.statistics[data.statistics.length - 1].time;
+                var diffTime = new Date(endTime - startTime);
+                this.newText(x + data.width - 400, y + data.height - 90,
+                    'playtime: ' + ('0' + diffTime.getMinutes()).substr(-2) + ":" +
+                    ('0' + diffTime.getSeconds()).substr(-2), { font: 'bold 24px Arial', fill: "black" }, 0);
+                //separator
+                this.plate.fillStyle('0x7bb4f2', 1);
+                this.plate.fillRoundedRect(x + 30, y + 50, data.width, 5, 2);
+                //SubHeader
+                var subheader = this.newText(x + data.width / 2, y + 100, 'islands', { font: 'bold 28px Arial', fill: "black" }, 0);
+
+                //different buttons
+                var subTypeText;
+                var subIcon;
+                for (i = 1; i <= 3; i++) {
+                    switch (i) {
+                        case 1: subTypeText = "islands"; subIcon = "islands"; break;
+                        case 2: subTypeText = "population"; subIcon = "population"; break;
+                        case 3: subTypeText = "buildings"; subIcon = "techTree"; break;
+                    }
+                    var button = this.newSprite(x + 200, y + i * 200, "statisticsSubtype", i, "images", subIcon, 0.5);
+                    button.on('pointerup', function (x, y, data, graph, subheader, subTypeText) {
+                        //console.log("setInfoPlateSubType", data);
+                        data.subtype = subTypeText;
+                        subheader.text = subTypeText;
+                        this.setInfoPlateSubType(x, y, data, graph);
+                    }.bind(this, x, y, data, graph, subheader, subTypeText));
+
+                }
+                //color & tribe-names
+                for (var i = 1; i < this.gameScene.tribes.length; i++) {
+                    var text = this.newText(x + data.width / this.gameScene.tribes.length * i, y + data.height - 50,
+                        this.gameScene.tribes[i].name, { font: 'bold 28px Arial', fill: this.gameScene.tribes[i].color.replace("0x", "#") }, 0);
+                    text.setShadow(2, 2, "#333333", 2, true, true);
+                }
+                //draw the first statistic-curve
+                this.setInfoPlateSubType(x, y, data, graph);
+                break;
+            case "exit":
+                //Header
+                this.newText(x + 30, y + 20, 'Quit Game?', { font: 'bold 24px Arial', fill: "black" }, 0);
+                //separator
+                this.plate.fillStyle('0x7bb4f2', 1);
+                this.plate.fillRoundedRect(x + 30, y + 50, data.width, 5, 2);
+                //infotext
+                var iInfo = "Do you really want\n" +
+                    "to Quit this Game?\n" +
+                    "It'll be rated as defeat,\n" +
+                    "you coward fool!"
+                this.newText(x + 30, y + 60, iInfo, { font: 'bold 20px Arial', fill: "black" }, 0);
+                //quit Button
+                var button = this.newSprite(x + 120, y + data.height - 100, "quit", 0, "images", "door", 0.5);
+                button.on('pointerup', function (x, y, data, graph, subheader, subTypeText) {
+                    this.scene.gameScene.status = "stop";
+                    this.scene.saveGameStats(0);
+                    this.scene.scene.start("mainMenu");
+                    this.scene.scene.stop("playGame");
+                    this.scene.scene.stop("miniMap");
+                });
+                if (this.gameScene.status == "end") {
+                    this.gameScene.status = "stop";
+                    this.scene.start("mainMenu");
+                    this.scene.stop("playGame");
+                    this.scene.stop("miniMap");
+                }
+                break;
+            case "aiHelp":
+                //Header
+                this.newText(x + 30, y + 20, 'Need Help?', { font: 'bold 24px Arial', fill: "black" }, 0);
+                //separator
+                this.plate.fillStyle('0x7bb4f2', 1);
+                this.plate.fillRoundedRect(x + 30, y + 50, data.width, 5, 2);
+                //infotext
+                var iInfo = "If you need help, let\n" +
+                    "the AI support you.\n\n\n" +
+                    "   AI Attack:\n\n\n" +
+                    "   AI Build:"
+                this.newText(x + 30, y + 60, iInfo, { font: 'bold 20px Arial', fill: "black" }, 0);
+                //attack Button
+                var button = this.newSprite(x + 180, y + 160, "aiHelp", 0, "images", "emptyBubble", 0.5);
+                button.scale = 0.5;
+                button.on('pointerup', function () {
+                    this.scene.gameScene.tribes[1].ai ^= 1;
+                    if (this.scene.gameScene.tribes[1].ai & 1) {
+                        this.setTint("0xed5400");
+                    } else {
+                        this.clearTint();
+                    }
+                    //console.log("aiAttack_up", this.scene.gameScene.tribes[1].ai);
+                });
+                if (this.gameScene.tribes[1].ai & 1) { button.setTint("0xed5400"); }
+                //build Button
+                var button = this.newSprite(x + 180, y + 230, "aiHelp", 1, "images", "emptyBubble", 0.5);
+                button.scale = 0.5;
+                button.on('pointerup', function () {
+                    this.scene.gameScene.tribes[1].ai ^= 2;
+                    if (this.scene.gameScene.tribes[1].ai & 2) {
+                        this.setTint("0xed5400");
+                    } else {
+                        this.clearTint();
+                    }
+                    //console.log("aiBuild_up", this.scene.gameScene.tribes[1].ai);
+                });
+                if (this.gameScene.tribes[1].ai & 2) { button.setTint("0xed5400"); }
+
+                break;
+            default:
+                console.log("setInfoPlate_error", this, type, data);
+        }
+        //when everything is created, add a smooth tween to show the data
+        if (this.infoContainer.visible != true) {
+            //move the infoPlate into the screen
+            this.tweenInfoPlate(data.width, 1000);
+            this.infoContainer.visible = true;
+        }
+    }
+
+    setInfoPlateSubType(x, y, data, graph) {
+        //console.log("setInfoPlateSubType", data);
+        graph.clear();
+        var startTime = data.statistics[0].time;
+        var endTime = data.statistics[data.statistics.length - 1].time;
+        var stepX = (endTime - startTime) / (data.width - 700);
+        if (stepX == 0) { stepX = 1 };
+
+        //statistic-curve   
+        //draw the axis
+        graph.lineStyle(3, '0x000000', 1);
+        graph.strokePoints([{ x: x + 400 - 3, y: y + 100 - 3 }, { x: x + 400 - 3, y: y + data.height - 100 + 3 }, { x: x + data.width - 300, y: y + data.height - 100 + 3 }], false, false);
+        //differ between the subtypes (islands, polulation, builds, ...)
+        switch (data.subtype) {
+            case 'islands':
+                //now the data
+                var stepY = (data.height - 200) / data.statistics[0].islands;
+                for (var j = 1; j < data.statistics[0].tribes.length; j++) {
+                    var i = 0;
+                    var curvepoints = new Array();
+                    curvepoints.push({ x: x + 400 + (data.statistics[i].time - startTime) / stepX, y: y + data.height - 100 - stepY * data.statistics[i].tribes[j].islands });
+                    for (i = 0; i < data.statistics.length; i++) {
+                        //console.log("curvepoints", i, j, curvepoints);
+                        curvepoints.push({ x: x + 400 + (data.statistics[i].time - startTime) / stepX, y: y + data.height - 100 - stepY * data.statistics[i].tribes[j].islands });
+                    }
+                    graph.lineStyle(5, this.gameScene.tribes[j].color, 1);
+                    graph.strokePoints(curvepoints, false, false);
+                }
+                break;
+            case 'population':
+                //get maxPopulation
+                var stepY = 0;
+                for (var j = 1; j < data.statistics[0].tribes.length; j++) {
+                    var tempY = data.statistics[data.statistics.length - 1].tribes[j].population;
+                    if (tempY > stepY) { stepY = tempY }
+                }
+                var stepY = (data.height - 200) / (stepY + 100);
+                for (var j = 1; j < data.statistics[0].tribes.length; j++) {
+                    var i = 0;
+                    var curvepoints = new Array();
+                    curvepoints.push({ x: x + 400 + (data.statistics[i].time - startTime) / stepX, y: y + data.height - 100 - stepY * data.statistics[i].tribes[j].population });
+                    for (i = 0; i < data.statistics.length; i++) {
+                        //console.log("curvepoints", i, j, curvepoints);
+                        curvepoints.push({ x: x + 400 + (data.statistics[i].time - startTime) / stepX, y: y + data.height - 100 - stepY * data.statistics[i].tribes[j].population });
+                    }
+                    graph.lineStyle(5, this.gameScene.tribes[j].color, 1);
+                    graph.strokePoints(curvepoints, false, false);
+                }
+                break;
+            case 'buildings':
+                //get maxBuildings
+                var stepY = 0;
+                for (var j = 1; j < data.statistics[0].tribes.length; j++) {
+                    var tempY = data.statistics[data.statistics.length - 1].tribes[j].buildings;
+                    if (tempY > stepY) { stepY = tempY }
+                }
+                var stepY = (data.height - 200) / (stepY);
+                for (var j = 1; j < data.statistics[0].tribes.length; j++) {
+                    var i = 0;
+                    var curvepoints = new Array();
+                    //curvepoints.push({ x: x + 400 + (data.statistics[i].time - startTime) / stepX, y: y + data.height - 100 - stepY * data.statistics[i].tribes[j].buildings });
+                    for (i = 0; i < data.statistics.length; i++) {
+                        //console.log("curvepoints", i, j, curvepoints);
+                        curvepoints.push({ x: x + 400 + (data.statistics[i].time - startTime) / stepX, y: y + data.height - 100 - stepY * data.statistics[i].tribes[j].buildings });
+                    }
+                    graph.lineStyle(5, this.gameScene.tribes[j].color, 1);
+                    graph.strokePoints(curvepoints, false, false);
+                }
+                break;
+            default:
+                console.log("setInfoPlate_subtype_error", this, data);
+        }
+
+    }
+
+    newText(x, y, value, style, origin = 0.5) {
+        var text = this.textGroup.getFirstDead(0, 0, false);
+        if (text == undefined) { text = 0 }; //in case there is no dead element, header must be != null
+        if (text.type == "Text") {
+            text.text = value;
+            text.setStyle(style);
+            text.setPosition(x, y);
+            text.visible = true;
+            text.active = true;
+        } else {
+            text = this.add.text(x, y, value, style);
+            this.textGroup.add(text);
+        }
+        text.setOrigin(origin);
+        this.infoContainer.add(text);
+        return text;
+    }
+    newSprite(x, y, name, nr, image, key, origin = 0.5, addToInfoContainer = true) {
+        var button = this.spriteGroup.get(x, y, image, key);
+        button.setTexture(image, key);
+        if (addToInfoContainer) { this.infoContainer.add(button); }
+        button.visible = true;
+        button.active = true;
+        button.name = name;
+        button.nr = nr;
+        button.setOrigin(origin);
+        button.removeAllListeners();
+        button.setInteractive();
+        switch (name) {
+            case "colorpicker":
+            case "colorpickerNew":
+            case "aiHelp":
+                break; //cancel
+            case "plateBack":
+                button.on('pointerover', function () { 
+                    this.setTint("0xaaaaaa");
+                 })
+                button.on('pointerout', function () { 
+                    this.clearTint(); 
+                });
+                break;
+            default:
+                button.on('pointerover', function () { 
+                    this.setTint("0xed5400"); 
+                })
+                button.on('pointerout', function () { 
+                    this.clearTint(); 
+                });
+                break;
+        }
+        return button;
+    }
+
+    removeInfoPlate() {
+        //console.log("infoPlate_destroy", this.infoContainer, this); 
+        for (var i = 0; i < this.infoContainer.list.length; i++) {
+            if (this.infoContainer.list[i].type == "Text") {
+                this.textGroup.killAndHide(this.infoContainer.list[i]);
+                this.infoContainer.list[i].setShadow(0, 0, "#000", 0, false, false);
+            } else if (this.infoContainer.list[i].type == "Sprite") {
+                this.spriteGroup.killAndHide(this.infoContainer.list[i]);
+                this.infoContainer.list[i].clearTint();
+                this.infoContainer.list[i].scale = 1;
+            } else if (this.infoContainer.list[i].type == "Graphics" && i > 0) {
+                this.infoContainer.list[i].destroy();
+            }
+        };
+        this.infoContainer.x = 0;
+        this.infoContainer.visible = false;
+        this.plate.clear();
+        this.plate.x = 0;
+    }
+
+    tweenInfoPlate(x, duration) {
+        if (duration === undefined) { duration = 1000 }
+        this.tweens.add({
+            targets: this.infoContainer,
+            x: this.infoContainer.x - x,
+            ease: 'Back',       // 'Cubic', 'Elastic', 'Bounce', 'Back', 'Sine.easeInOut'
+            duration: duration,
+            repeat: 0,            // -1: infinity
+            yoyo: false
+        });
+    }
+};
+
