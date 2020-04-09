@@ -1,4 +1,7 @@
-﻿/// <reference path="node_modules/phaser.js" />
+﻿/** @type {import("./node_modules/phaser.js")} */
+//// <reference path="node_modules/phaser.js" />
+
+
 
 class cMainMenu extends Phaser.Scene {
     constructor() {
@@ -17,9 +20,9 @@ class cMainMenu extends Phaser.Scene {
 
         //load image atlas
         this.load.atlas('images', 'assets/spritesheets/imageAtlas.png', 'assets/spritesheets/imageAtlas.json');
+        this.load.image('background', 'assets/background.png');
         //load audio sprite
         //game.load.audio('soundEffects', ['assets/spritesheets/PaperJumpAudioAtlas.ogg'], false);
-        this.load.image('backButton', 'assets/back.png');
         //load techTree
         this.load.json('gameSettings', 'assets/gameSettings.json');
     }
@@ -33,7 +36,7 @@ class cMainMenu extends Phaser.Scene {
         game.scale.resize(tWidth, tHeight);
         this.cameras.main.setBounds(0, 0, tWidth, tHeight);
         //backgroundimage
-        var background = this.add.sprite(-150, 0, "images", "background");
+        var background = this.add.sprite(-150, 0, "background");
         background.setOrigin(0);
         if (background.width - 200 < tWidth) { background.scale = (tWidth / (background.width - 200) * 2); }
         if (background.height - 200 < tHeight) { background.scale = (tHeight / (background.height - 200) * 2); }
@@ -144,7 +147,7 @@ class cMainMenu extends Phaser.Scene {
         this.plate.fillStyle('0x7bb4f2', 1);
         this.plate.fillRoundedRect(x + 30, y + 50, data.width, 5, 2);
         //back button
-        var button = this.newSprite(x, y + data.height / 2 - 50, "plateBack", 0, "backButton", "", 0.1);
+        var button = this.newSprite(x, y + data.height / 2 - 50, "plateBack", 0, "images", "back", 0.1);
         button.on('pointerup', function (button, data) {
             this.tweenInfoPlate(-data.width, 700);
             this.time.addEvent({
@@ -217,7 +220,7 @@ class cMainMenu extends Phaser.Scene {
                 //slider
                 this.plate.fillStyle('0x7bb4f2', 1);
                 this.plate.fillRoundedRect(x + 80, y + 430, 200, 2, 2);
-                var sliderHitArea = this.newSprite(x + 80, y + 420, "sliderBack", 0, "images", 'emptyBubble', 0.0);
+                var sliderHitArea = this.newSprite(x + 80, y + 420, "sliderBackground", 0, "images", 'emptyBubble', 0.0);
                 sliderHitArea.alpha = 0.01;
                 sliderHitArea.displayWidth = 200;
                 sliderHitArea.displayHeight = 20;

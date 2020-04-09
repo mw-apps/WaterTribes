@@ -9,8 +9,18 @@
   "background_color": "#7bb4f2",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "favicon.png",
       "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icons/icon_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icons/icon_256.png",
+      "sizes": "256x256",
       "type": "image/png"
     },
     {
@@ -19,8 +29,18 @@
       "type": "image/png"
     },
     {
-      "src": "./assets/icons/icon_512.png",
-      "sizes": "512x512",
+      "src": "./assets/icons/icon_128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icons/icon_32.png",
+      "sizes": "32x22",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icons/icon_16.png",
+      "sizes": "16x16",
       "type": "image/png"
     }
   ],
@@ -29,5 +49,7 @@
     "url": "https://github.com/mw-apps/"
   },
   "default_locale": "de",
-  "chrome": { "navigation": false }
+  "chrome": {
+    "navigation": false
+  }
 }

@@ -1,9 +1,15 @@
 ﻿/// <reference path="node_modules/phaser.js" />
 
 /**
+ * LINKS:
+ * http://free-tex-packer.com/app/
+ * https://gammafp.com/tools/
+ * 
 ToDo:
 * save to localStorage, load from localStorage/json (maps)
 **/
+
+
 
 
 class cGame extends Phaser.Scene {
@@ -11,7 +17,7 @@ class cGame extends Phaser.Scene {
         super("playGame");
         this.aaaaa = "playGame";
         this.status = "constructor";
-        this.debug = true;
+        this.debug = false;
         this.tribes = new Array();   //each tribe is stored in this group
         this.islandGroup;    //each island
         this.shipGroup;      // all active Ships are stored in this group
@@ -63,7 +69,7 @@ class cGame extends Phaser.Scene {
         //load the gameSettings and gameSettings
         this.gameSettings = JSON.parse(JSON.stringify(this.cache.json.get('gameSettings')));
         //backgroundimage
-        var background = this.add.sprite(-150, 0, "images", "background");
+        var background = this.add.sprite(-150, 0, "background");
         background.setOrigin(0);
 
         if (background.width - 200 < this.cam.bounds.width) { background.scale = (this.cam.bounds.width / (background.width - 200) * 2); }
@@ -121,9 +127,15 @@ class cGame extends Phaser.Scene {
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(controlConfig);
 
         this.input.on('wheel', function (pointer, currentlyOver, dx, dy, dz, event) {
-            this.camZoom(-dy / 10);
-            //console.log(controlConfig, this.controls, this.controls._speedX, dy/10);
-            //this.controls._zoom += dy/10;
+            var value;
+            if (dy < 0) { value = -0.5 * this.cam.zoom / 3 } else { value = 0.5 * this.cam.zoom / 3 }
+            //console.log("zoom", this.cam.zoom, value);
+            if (this.cam.zoom + value < this.camZoomMin) {
+                value = this.camZoomMin - this.cam.zoom;
+            } else if (this.cam.zoom + value > this.camZoomMax) {
+                value = this.camZoomMax - this.cam.zoom;
+            }
+            this.cam.zoomTo(this.cam.zoom + value, 250, "Linear");
         }, this);
 
         //set the camera to the start-island
@@ -174,16 +186,6 @@ class cGame extends Phaser.Scene {
             default:
                 console.log("Game_newMessage_error", this, data);
         }
-    }
-
-    camZoom(value) {
-        //console.log("camZoom", value, this.cam.zoom, this.cam);
-        if (this.cam.zoom + value < this.camZoomMin) {
-            value = this.camZoomMin - this.cam.zoom;
-        } else if (this.cam.zoom + value > this.camZoomMax) {
-            value = this.camZoomMax - this.cam.zoom;
-        }
-        this.cam.zoomTo(this.cam.zoom + value, 300, "Linear");
     }
 
     update(time, delta) {
@@ -851,7 +853,6 @@ class Island extends Phaser.GameObjects.Sprite {
 
         var tsprite = 'island' + Phaser.Math.Between(0, 5);
         Phaser.GameObjects.Sprite.call(this, config.scene, config.x, config.y, 'images', tsprite);
-        //game.scene.add.sprite(x, y, 'images', tsprite);
         //set some default settings
         this.setOrigin(0.5, 0.5);
         this.scale = 1 - Phaser.Math.Between(3, 7) / 10;
@@ -1069,14 +1070,21 @@ class Island extends Phaser.GameObjects.Sprite {
                 this.bubbleGroup.children.entries[0].x = tBubble.x;
                 this.bubbleGroup.children.entries[0].y = tBubble.y + tBubble.height / 2 - 4;
                 this.bubbleGroup.children.entries[0].setting = tBubble.nr;
-                if (this.tribe == 1) {
+                if (this.tribe == 1 || this.debug == true) {
                     this.bubbleGroup.children.entries[0].visible = true;
                 }
                 tBubble.alpha = 0.8;
-                //bleach the currently not build bubbles, while the buildprocess takes palce
+                //bleach the currently not build bubbles, while the buildprocess takes palce (therefor remove existing tweens)
                 for (i = 1; i < this.bubbleGroup.children.entries.length - 2; i++) {
                     if (i != tBubble.nr) {
-                        this.scene.tweens.killTweensOf(this.bubbleGroup.children.entries[i]);
+                        //console.log("tweens", this.scene.tweens.getTweensOf(this.bubbleGroup.children.entries[i]));
+                        var tweens = this.scene.tweens.getTweensOf(this.bubbleGroup.children.entries[i]);
+                        for (var j = 0; j < tweens.length; j++) {
+                            for (var jj = 0; jj < tweens[j].data.length; jj++) {
+                                if (tweens[j].data[jj].key == "alpha") { tweens[j].stop(); break; }
+                            }
+                        }
+                        //this.scene.tweens.killTweensOf(this.bubbleGroup.children.entries[i]);
                         this.bubbleGroup.children.entries[i].alpha = 0.5;
                     }
                 }
@@ -1262,7 +1270,6 @@ class Bubble extends Phaser.GameObjects.Sprite {
     constructor(scene) {
         super(scene, 0, 0, 'images', 'bubbleBuild');
         //load Bubble sprite and set some settings
-        //Phaser.GameObjects.Sprite.call(this, scene, 0, 0, 'images', 'bubbleBuild');
         this.scale = 0.4;
         this.visible = false;
         scene.add.existing(this);

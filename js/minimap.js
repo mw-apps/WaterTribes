@@ -20,28 +20,23 @@ class cMiniMap extends Phaser.Scene {
         this.gameSpeed = 1;
         this.mute = false;
         this.tribeAi = 0;
-        var x = this.scale.width - 120;
-        var y = this.scale.height - 120;
         var iLine = new Phaser.Geom.Line();
-
-        //infoPlate (islandinfo, statistics, and so on)
-        this.infoContainer = this.add.container();
         this.spriteGroup = this.add.group();
         this.textGroup = this.add.group();
-        this.plate = this.add.graphics();
-        this.infoContainer.add(this.plate);
-        this.infoContainer.visible = false;
 
         //differ between mobile and desktop (action-button size)
         if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
             this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle) {
             this.mobile = true;
         }
+        //this.mobile = true; //ToDo
 
         this.miniMapBubble = this.add.sprite(0, 0, "images", 'emptyBubble');
         this.miniMapBubble.setOrigin(0.5, 0.5);
         this.miniMapBubble.alpha = 0.6;
-        if (this.mobile == true) { this.miniMapBubble.scale = 2; } else { this.miniMapBubble.scale = 1.6; }
+        if (this.mobile == true) { this.miniMapBubble.scale = 2.6; } else { this.miniMapBubble.scale = 1.6; }
+        var x = this.scale.width - this.miniMapBubble.displayWidth / 2 - 20;
+        var y = this.scale.height - this.miniMapBubble.displayHeight / 2 - 20;
         this.miniMapBubble.x = x;
         this.miniMapBubble.y = y;
         //property-circle
@@ -62,7 +57,7 @@ class cMiniMap extends Phaser.Scene {
                 default: console.log("create action-buttons error", i);
             }
             var button = this.newSprite(x, y, "actionBubble", i, "images", temp, 0.5, false);
-            if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+            if (this.mobile == true) { button.scale = 0.8; } else { button.scale = 0.5; }
             Phaser.Geom.Line.SetToAngle(iLine, x, y, angle, this.miniMapBubble.displayWidth / 2 + button.displayWidth / 1.5);
             button.x = iLine.x2;
             button.y = iLine.y2;
@@ -72,6 +67,12 @@ class cMiniMap extends Phaser.Scene {
             }.bind(this, button));
             this.bubbleGroup.add(button);
         }
+
+        //infoPlate (islandinfo, statistics, and so on)
+        this.infoContainer = this.add.container();
+        this.plate = this.add.graphics();
+        this.infoContainer.add(this.plate);
+        this.infoContainer.visible = false;
 
         // Listen for events from gameScene
         this.gameScene = this.scene.get('playGame');
@@ -301,9 +302,6 @@ class cMiniMap extends Phaser.Scene {
                 this.setInfoPlate({ type: 'statistics', statistics: this.gameScene.statistics, subtype: 'islands' });
                 break;
             case 4: //TribeAI on/off
-                //this.tribeAi = !this.tribeAi;
-                //console.log('tribe_ai', this.tribeAi);
-                //this.gameScene.events.emit('toGameMsg', { type: 'update', tribeAi: this.tribeAi });
                 this.setInfoPlate({ type: 'aiHelp', statistics: this.gameScene.statistics });
                 break;
             case 5: //exit game
@@ -350,26 +348,47 @@ class cMiniMap extends Phaser.Scene {
     setInfoPlate(data) {
         //console.log("setInfoPlate", data, this, this.infoContainer);
         //set the width and height
-        switch (data.type) {
-            case 'islandInfo':
-                data.width = 550;
-                data.height = 430;
-                break;
-            case "statistics":
-                data.width = this.scale.width - 100;
-                data.height = this.scale.height - 300;
-                break;
-            case 'exit':
-                data.width = 450;
-                data.height = 330;
-                break;
-            case 'aiHelp':
-                data.width = 450;
-                data.height = 330;
-                break;
-            default:
+        if (this.mobile == true) {
+            switch (data.type) {
+                case 'islandInfo':
+                    data.width = 620;
+                    data.height = 580;
+                    break;
+                case "statistics":
+                    data.width = this.scale.width - 100;
+                    data.height = this.scale.height - 300;
+                    break;
+                case 'exit':
+                    data.width = 580;
+                    data.height = 380;
+                    break;
+                case 'aiHelp':
+                    data.width = 560;
+                    data.height = 380;
+                    break;
+                default:
+            }
+        } else {
+            switch (data.type) {
+                case 'islandInfo':
+                    data.width = 550;
+                    data.height = 500;
+                    break;
+                case "statistics":
+                    data.width = this.scale.width - 100;
+                    data.height = this.scale.height - 300;
+                    break;
+                case 'exit':
+                    data.width = 530;
+                    data.height = 330;
+                    break;
+                case 'aiHelp':
+                    data.width = 500;
+                    data.height = 330;
+                    break;
+                default:
+            }
         }
-
         var x = this.scale.width + 200;  //startposition outside of the screen
         var y = this.scale.height / 2 - data.height / 2 - 20;   //in the middle of the y-axis
         this.plate.visible = true;
@@ -380,6 +399,7 @@ class cMiniMap extends Phaser.Scene {
             this.removeInfoPlate();
             this.infoContainer.visible = true; //set back to visible, because in "removeInfoPlate" it is set to false
         } else {
+            this.removeInfoPlate();
             this.infoContainer.x = 0;
             this.plate.x = 0;
         }
@@ -391,8 +411,8 @@ class cMiniMap extends Phaser.Scene {
         this.plate.lineStyle(5, '0xe2f1ff', 1); //white
         this.plate.strokeRect(x + 2, y + 2, data.width - 4, data.height - 4);
         //back button
-        var button = this.newSprite(x, y + data.height / 2 - 50, "plateBack", 0, "backButton", "", 0.1);
-        if (this.mobile == true) { button.scale = 1.5; } else { button.scale = 1.2 }
+        var button = this.newSprite(x, y + data.height / 2 - 50, "plateBack", 0, "images", "back", 0.1);
+        if (this.mobile == true) { button.scale = 1.7; } else { button.scale = 1.2 }
         button.on('pointerup', function (button, data) {
             this.tweenInfoPlate(-data.width, 700);
             this.time.addEvent({
@@ -401,16 +421,25 @@ class cMiniMap extends Phaser.Scene {
                 }, callbackScope: this
             });
         }.bind(this, button, data));
+
+        //Header
+        switch (data.type) {
+            case 'islandInfo': var tHeader = "Island Info"; break;
+            case "statistics": var tHeader = "Statistics"; break;
+            case 'exit': var tHeader = "Quit?"; break;
+            case 'aiHelp': var tHeader = "Need Help?"; break;
+            default:
+        }
+        if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } }
+        this.newText(x + 30, y + 18, tHeader, tFont, 0);
+        //separator
+        this.plate.fillStyle('0x7bb4f2', 1);
+        this.plate.fillRoundedRect(x + 30, y + 50, data.width, 5, 2);
+
         //console.log("setinfoplate", type, data, x, y, this);
         //differ between the different types of information
         switch (data.type) {
             case 'islandInfo':
-                //Header
-                this.newText(x + 30, y + 20, 'Island Info', { font: 'bold 24px Arial', fill: "black" }, 0);
-                //separator
-                this.plate.fillStyle('0x7bb4f2', 1);
-                this.plate.fillRoundedRect(x + 30, y + 50, data.width, 5, 2);
-
                 //infotext
                 var tIsland = data.island;
                 var iInfo =
@@ -428,27 +457,25 @@ class cMiniMap extends Phaser.Scene {
                     "attack: " + tIsland.attack.toFixed(3) + "\n" + "\n" +
                     "player: " + this.gameScene.tribes[tIsland.tribe].name + "\n" +
                     "Ai-Level: " + this.gameScene.tribes[tIsland.tribe].aiLevel;
-                this.newText(x + 30, y + 60, iInfo, { font: 'bold 20px Arial', fill: "black" }, 0);
+                if (this.mobile == true) { var tFont = { font: 'bold 30px Arial', fill: "black" } } else { var tFont = { font: 'bold 24px Arial', fill: "black" } }
+                this.newText(x + 40, y + 60, iInfo, tFont, 0);
 
                 break;
             case 'statistics':
                 //statistic-plate
                 var graph = this.add.graphics();
                 this.infoContainer.add(graph);
-                //Header
-                this.newText(x + 30, y + 20, 'statistics', { font: 'bold 28px Arial', fill: "black" }, 0);
                 //duration
                 var startTime = data.statistics[0].time;
                 var endTime = data.statistics[data.statistics.length - 1].time;
                 var diffTime = new Date(endTime - startTime);
-                this.newText(x + data.width - 400, y + data.height - 90,
+                if (this.mobile == true) { var tFont = { font: 'bold 30px Arial', fill: "black" } } else { var tFont = { font: 'bold 24px Arial', fill: "black" } }
+                this.newText(x + data.width - 430, y + data.height - 90,
                     'playtime: ' + ('0' + diffTime.getMinutes()).substr(-2) + ":" +
-                    ('0' + diffTime.getSeconds()).substr(-2), { font: 'bold 24px Arial', fill: "black" }, 0);
-                //separator
-                this.plate.fillStyle('0x7bb4f2', 1);
-                this.plate.fillRoundedRect(x + 30, y + 50, data.width, 5, 2);
+                    ('0' + diffTime.getSeconds()).substr(-2), tFont, 0);
                 //SubHeader
-                var subheader = this.newText(x + data.width / 2, y + 100, 'islands', { font: 'bold 28px Arial', fill: "black" }, 0);
+                if (this.mobile == true) { var tFont = { font: 'bold 32px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } }
+                var subheader = this.newText(x + data.width / 2, y + 100, 'islands', tFont, 0);
 
                 //different buttons
                 var subTypeText;
@@ -470,27 +497,23 @@ class cMiniMap extends Phaser.Scene {
                 }
                 //color & tribe-names
                 for (var i = 1; i < this.gameScene.tribes.length; i++) {
-                    var text = this.newText(x + data.width / this.gameScene.tribes.length * i, y + data.height - 50,
-                        this.gameScene.tribes[i].name, { font: 'bold 28px Arial', fill: this.gameScene.tribes[i].color.replace("0x", "#") }, 0);
+                    if (this.mobile == true) { var tFont = { font: 'bold 32px Arial', fill: this.gameScene.tribes[i].color.replace("0x", "#") } } else { var tFont = { font: 'bold 28px Arial', fill: this.gameScene.tribes[i].color.replace("0x", "#") } }
+                    var text = this.newText(x + data.width / this.gameScene.tribes.length * i, y + data.height - 60, this.gameScene.tribes[i].name, tFont, 0);
                     text.setShadow(2, 2, "#333333", 2, true, true);
                 }
                 //draw the first statistic-curve
                 this.setInfoPlateSubType(x, y, data, graph);
                 break;
             case "exit":
-                //Header
-                this.newText(x + 30, y + 20, 'Quit Game?', { font: 'bold 24px Arial', fill: "black" }, 0);
-                //separator
-                this.plate.fillStyle('0x7bb4f2', 1);
-                this.plate.fillRoundedRect(x + 30, y + 50, data.width, 5, 2);
                 //infotext
                 var iInfo = "Do you really want\n" +
                     "to Quit this Game?\n" +
                     "It'll be rated as defeat,\n" +
                     "you coward fool!"
-                this.newText(x + 30, y + 60, iInfo, { font: 'bold 20px Arial', fill: "black" }, 0);
+                if (this.mobile == true) { var tFont = { font: 'bold 30px Arial', fill: "black" } } else { var tFont = { font: 'bold 24px Arial', fill: "black" } }
+                this.newText(x + 40, y + 60, iInfo, tFont, 0);
                 //quit Button
-                var button = this.newSprite(x + 120, y + data.height - 100, "quit", 0, "images", "door", 0.5);
+                var button = this.newSprite(x + (data.width - 200) / 2, y + data.height - 80, "quit", 0, "images", "door", 0.5);
                 button.on('pointerup', function (x, y, data, graph, subheader, subTypeText) {
                     this.scene.gameScene.status = "stop";
                     this.scene.saveGameStats(0);
@@ -506,20 +529,16 @@ class cMiniMap extends Phaser.Scene {
                 }
                 break;
             case "aiHelp":
-                //Header
-                this.newText(x + 30, y + 20, 'Need Help?', { font: 'bold 24px Arial', fill: "black" }, 0);
-                //separator
-                this.plate.fillStyle('0x7bb4f2', 1);
-                this.plate.fillRoundedRect(x + 30, y + 50, data.width, 5, 2);
                 //infotext
                 var iInfo = "If you need help, let\n" +
-                    "the AI support you.\n\n\n" +
-                    "   AI Attack:\n\n\n" +
-                    "   AI Build:"
-                this.newText(x + 30, y + 60, iInfo, { font: 'bold 20px Arial', fill: "black" }, 0);
+                    "the AI support you."
+                if (this.mobile == true) { var tFont = { font: 'bold 30px Arial', fill: "black" } } else { var tFont = { font: 'bold 24px Arial', fill: "black" } }
+                this.newText(x + 40, y + 60, iInfo, tFont, 0);
+                this.newText(x + 120, y + 190, "aiAttack:", tFont, 0.5);
+                this.newText(x + 120, y + 280, "aiBuild:", tFont, 0.5);
                 //attack Button
-                var button = this.newSprite(x + 180, y + 160, "aiHelp", 0, "images", "emptyBubble", 0.5);
-                button.scale = 0.5;
+                var button = this.newSprite(x + data.width - 290, y + 190, "aiHelp", 0, "images", "aiAttack", 0.5);
+                if (this.mobile == true) { button.scale = 0.8; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
                     this.scene.gameScene.tribes[1].ai ^= 1;
                     if (this.scene.gameScene.tribes[1].ai & 1) {
@@ -527,12 +546,11 @@ class cMiniMap extends Phaser.Scene {
                     } else {
                         this.clearTint();
                     }
-                    //console.log("aiAttack_up", this.scene.gameScene.tribes[1].ai);
                 });
                 if (this.gameScene.tribes[1].ai & 1) { button.setTint("0xed5400"); }
                 //build Button
-                var button = this.newSprite(x + 180, y + 230, "aiHelp", 1, "images", "emptyBubble", 0.5);
-                button.scale = 0.5;
+                var button = this.newSprite(x + data.width - 290, y + 280, "aiHelp", 1, "images", "aiBuild", 0.5);
+                if (this.mobile == true) { button.scale = 0.8; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
                     this.scene.gameScene.tribes[1].ai ^= 2;
                     if (this.scene.gameScene.tribes[1].ai & 2) {
@@ -540,7 +558,6 @@ class cMiniMap extends Phaser.Scene {
                     } else {
                         this.clearTint();
                     }
-                    //console.log("aiBuild_up", this.scene.gameScene.tribes[1].ai);
                 });
                 if (this.gameScene.tribes[1].ai & 2) { button.setTint("0xed5400"); }
 
@@ -694,7 +711,7 @@ class cMiniMap extends Phaser.Scene {
                 this.spriteGroup.killAndHide(this.infoContainer.list[i]);
                 this.infoContainer.list[i].clearTint();
                 this.infoContainer.list[i].scale = 1;
-            } else if (this.infoContainer.list[i].type == "Graphics" && i > 0) {
+            } else if (this.infoContainer.list[i].type == "Graphics" && i > 0) {    //statistic curves
                 this.infoContainer.list[i].destroy();
             }
         };
