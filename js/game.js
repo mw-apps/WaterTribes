@@ -1,4 +1,5 @@
 ﻿/// <reference path="node_modules/phaser.js" />
+/** @type {import("./node_modules/phaser.js")} */
 
 /**
  * LINKS:

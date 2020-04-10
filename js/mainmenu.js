@@ -6,12 +6,14 @@
 class cMainMenu extends Phaser.Scene {
     constructor() {
         super("mainMenu");
+        this.aaaaa = "mainMenu";
         this.infoContainer;
         this.spriteGroup;
         this.textGroup;
         this.plate;
         this.gameSettings;
         this.newGameSettings = {};
+        this.mobile = false;
     }
 
     preload() {
@@ -65,6 +67,7 @@ class cMainMenu extends Phaser.Scene {
         if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
             this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle ||
             this.sys.game.device.browser.chrome || this.sys.game.device.browser.mobileSafari) {
+            this.mobile = true;
             //check if App is running as PWA via query string parameter
             var urlParams;
             var match,
@@ -83,14 +86,14 @@ class cMainMenu extends Phaser.Scene {
                 console.log("This is running as PWA.");
             } else {
                 //PWA button
-                var pwaButton = this.newSprite(tWidth - 300, -150, "pwa", 0, "images", "emptyBubble", 0.5, false);
-                pwaButton.scale = 2;
+                var pwaButton = this.newSprite(tWidth / 2, -150, "pwa", 0, "images", "emptyBubble", 0.5, false);
+                pwaButton.scale = 3;
                 pwaButton.on('pointerup', function () {
                     if (window.promptEvent) { window.promptEvent.prompt(); }
                     pwaButton.clearTint();
                     console.log("os:", this.sys.game.device.os, "browser:", this.sys.game.device.browser);
                 }.bind(this));
-                var pwaText = this.newText(tWidth - 300, -100, "Play this Game as a\nPWA-App, for best\nUserexpereance &\nPerformance", { font: '20px Arial', fill: "black" }, 0.5, false);
+                var pwaText = this.newText(tWidth / 2, -100, "Play this Game as a\nPWA-App, for best\nUserexpereance &\nPerformance", { font: '30px Arial', fill: "black" }, 0.5, false);
                 this.tweens.add({
                     targets: [pwaButton, pwaText],
                     y: pwaButton.displayHeight / 2 - 50,
@@ -109,23 +112,23 @@ class cMainMenu extends Phaser.Scene {
         //set the width and height
         switch (data.type) {
             case 'menu':
-                data.width = 353;
-                data.height = 430;
+                data.width = 500;
+                data.height = 530;
                 data.backPlate = "";
                 break;
             case "newGame":
-                data.width = 500;
-                data.height = 570;
+                data.width = 700;
+                data.height = 800;
                 data.backPlate = "menu";
                 break;
             case 'statistics':
-                data.width = 450;
-                data.height = 570;
+                data.width = 700;
+                data.height = 670;
                 data.backPlate = "menu";
                 break;
             case 'credits':
-                data.width = 500;
-                data.height = 270;
+                data.width = 700;
+                data.height = 370;
                 data.backPlate = "menu";
                 break;
             default:
@@ -145,9 +148,10 @@ class cMainMenu extends Phaser.Scene {
         this.plate.strokeRect(x + 2, y + 2, data.width - 4, data.height - 4);
         //separator
         this.plate.fillStyle('0x7bb4f2', 1);
-        this.plate.fillRoundedRect(x + 30, y + 50, data.width, 5, 2);
+        this.plate.fillRoundedRect(x + 40, y + 60, data.width, 8, 4);
         //back button
         var button = this.newSprite(x, y + data.height / 2 - 50, "plateBack", 0, "images", "back", 0.1);
+        if (this.mobile == true) { button.scale = 1.7; } else { button.scale = 1.2 }
         button.on('pointerup', function (button, data) {
             this.tweenInfoPlate(-data.width, 700);
             this.time.addEvent({
@@ -158,15 +162,27 @@ class cMainMenu extends Phaser.Scene {
             });
         }.bind(this, button, data));
         if (data.backPlate == "") {     //load backbutton and hide it, otherwise the backbutton would be too wide
-            button.visible = false; //i guess because the texture before is 1x1 (lxb)
+            button.visible = false;     //i guess because the texture before is 1x1 (lxb)
         } else {
             button.visible = true;
         }
+
+        //Header
+        switch (data.type) {
+            case 'menu': var tHeader = "Water Tribes"; break;
+            case "newGame": var tHeader = "Water Tribes - New Game"; break;
+            case 'statistics': var tHeader = "Water Tribes - Statistics"; break;
+            case 'credits': var tHeader = "Water Tribes - Credits"; break;
+            case 'loadGame': var tHeader = "Water Tribes - Credits"; break;
+            case 'quit': var tHeader = "Water Tribes - Credits"; break;
+            default:
+        }
+        if (this.mobile == true) { var tFont = { font: 'bold 45px Arial', fill: "black" } } else { var tFont = { font: 'bold 35px Arial', fill: "black" } }
+        this.newText(x + 40, y + 18, tHeader, tFont, 0);
+
         //differ between the different types of information
         switch (data.type) {
             case 'menu':
-                //Header
-                this.newText(x + 30, y + 20, "Water Tribes", { font: 'bold 24px Arial', fill: "black" }, 0);
                 //different buttons
                 var subTypeText;
                 var subIcon;
@@ -180,9 +196,9 @@ class cMainMenu extends Phaser.Scene {
                         case 3: subTypeText = "credits"; subIcon = "credits"; break;
                         case 4: subTypeText = "quit"; subIcon = "exit"; break;
                     }
-                    tX = (i % 2 + 1) * 100;
-                    var button = this.newSprite(x + 275 - tX, y + 100 + i * 70, "button", i, "images", subIcon, 0.5);
-                    button.scale = 0.5;
+                    if (i % 2) { tX = 70 } else { tX = -70 }
+                    var button = this.newSprite(x + 50 + (data.width - 200) / 2 - tX, y + 130 + i * 80, "button", i, "images", subIcon, 0.5);
+                    button.scale = 0.7;
                     button.on('pointerup', function (button, data, subTypeText) {
                         this.tweenInfoPlate(-data.width, 700);
                         this.time.addEvent({
@@ -193,52 +209,54 @@ class cMainMenu extends Phaser.Scene {
                         });
                     }.bind(this, button, data, subTypeText));
                     //ButtonText
-                    this.newText(x + tX - 20, y + 100 + i * 70, subTypeText, { font: 'bold 24px Arial', fill: "black" }, 0.5);
+                    if (this.mobile == true) { var tFont = { font: 'bold 40px Arial', fill: "black" } } else { var tFont = { font: 'bold 30px Arial', fill: "black" } }
+                    this.newText(x + 50 + (data.width - 200) / 2 + tX, y + 130 + i * 80, subTypeText, tFont, 0.5);
                 }
                 break;
             case 'newGame':
-                //Header
-                this.newText(x + 30, y + 20, "Water Tribes - New Game", { font: 'bold 24px Arial', fill: "black" }, 0);
                 //Text
-                var text = "Player          " + "color        " + "level"
-                this.newText(x + 80, y + 80, text, { font: 'bold 20px Arial', fill: "black" }, 0);
+                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                this.newText(x + 80, y + 80, "Player", tFont, 0);
+                this.newText(x + 280, y + 80, "color", tFont, 0);
+                this.newText(x + 480, y + 80, "level", tFont, 0);
                 //separator
                 this.plate.fillStyle('0x7bb4f2', 1);
-                this.plate.fillRoundedRect(x + 80, y + 100, data.width, 2, 2);
+                this.plate.fillRoundedRect(x + 80, y + 120, data.width, 6, 2);
 
+                //add CPU-Player
                 for (i = 0; i < this.newGameSettings.tribes.length; i++) {
-                    this.newGameAddPlayer(x, y, i);
+                    this.newGameAddPlayer(x, y, i, 70);
                 }
-
                 //Text
-                var text = "Number of Islands"
-                this.newText(x + 80, y + 380, text, { font: 'bold 20px Arial', fill: "black" }, 0);
+                //if (this.mobile == true) { var tFont = { font: 'bold 35x Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                this.newText(x + 80, y + 140 + this.gameSettings.tribeMax * 70, "Number of Islands", tFont, 0);
                 //separator
                 this.plate.fillStyle('0x7bb4f2', 1);
-                this.plate.fillRoundedRect(x + 80, y + 400, data.width, 2, 2);
+                this.plate.fillRoundedRect(x + 80, y + 170 + this.gameSettings.tribeMax * 70, data.width, 6, 2);
 
                 //slider
                 this.plate.fillStyle('0x7bb4f2', 1);
-                this.plate.fillRoundedRect(x + 80, y + 430, 200, 2, 2);
-                var sliderHitArea = this.newSprite(x + 80, y + 420, "sliderBackground", 0, "images", 'emptyBubble', 0.0);
+                this.plate.fillRoundedRect(x + 80, y + 220 + this.gameSettings.tribeMax * 70, 300, 4, 2);
+                var sliderHitArea = this.newSprite(x + 80, y + 200 + this.gameSettings.tribeMax * 70, "sliderBackground", 0, "images", 'emptyBubble', 0.0);
                 sliderHitArea.alpha = 0.01;
-                sliderHitArea.displayWidth = 200;
-                sliderHitArea.displayHeight = 20;
+                sliderHitArea.displayWidth = 300;
+                sliderHitArea.displayHeight = 40;
                 sliderHitArea.setInteractive();
                 sliderHitArea.on('pointerup', function (pointer, localX, localY, event) {
-                    //console.log("pUp", pointer, pointer.upX, this.x + localX, slider.slideMax, this.x + this.displayWidth);
-                    slider.textObj.text = (this.scene.newGameSettings.tribes.length + ((this.scene.gameSettings.islandsMax - this.scene.newGameSettings.tribes.length) / this.width) * localX).toFixed(0);
+                    //console.log("pUp", x, pointer.upX, sliderHitArea.x, pointer, this.width, localX);
+                    slider.textObj.text = (this.scene.newGameSettings.tribes.length + (this.scene.gameSettings.islandsMax - this.scene.newGameSettings.tribes.length) / this.width * localX).toFixed(0);
                     this.scene.newGameSettings.islands = slider.textObj.text;
                     slider.calcNewPosition();
                 });
-                var sliderText = this.newText(x + 310, y + 430, this.newGameSettings.islands, { font: 'bold 20px Arial', fill: "black" }, 0.5);
-                var slider = this.newSprite(x + 80, y + 430, "slider", 0, "images", 'emptyBubble', 0.5);
-                slider.scale = 0.2;
+                //if (this.mobile == true) { var tFont = { font: 'bold 35x Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                var sliderText = this.newText(x + 420, y + 220 + this.gameSettings.tribeMax * 70, this.newGameSettings.islands, tFont, 0.5);
+                var slider = this.newSprite(x + 80, y + 220 + this.gameSettings.tribeMax * 70, "slider", 0, "images", 'emptyBubble', 0.5);
+                if (this.mobile == true) { slider.scale = 0.5; } else { slider.scale = 0.3; }
                 slider.textObj = sliderText;
                 this.input.setDraggable(slider);
                 slider.input.draggable = true;
                 slider.slideMin = x + 80;
-                slider.slideMax = slider.slideMin + 200;
+                slider.slideMax = slider.slideMin + 300;
                 slider.calcNewPosition = function () {
                     this.x = this.slideMin + (this.textObj.text - this.scene.newGameSettings.tribes.length) * (this.slideMax - this.slideMin) / (this.scene.gameSettings.islandsMax - this.scene.newGameSettings.tribes.length);
                 }
@@ -258,8 +276,8 @@ class cMainMenu extends Phaser.Scene {
                 slider.calcNewPosition();
 
                 //remove last enemy
-                var remEnemy = this.newSprite(x + 50, y + 135 + (i - 1) * 40, "removeEnemy", 0, "images", "remove", 0.5);
-                remEnemy.scale = 0.3;
+                var remEnemy = this.newSprite(x + 70, y + 165 + (i - 1) * 70, "removeEnemy", 0, "images", "remove", 0.5);
+                if (this.mobile == true) { remEnemy.scale = 0.6; } else { remEnemy.scale = 0.4; }
                 remEnemy.on('pointerup', function (remEnemy, slider) {
                     this.newGameSettings.tribes.splice(this.newGameSettings.tribes.length - 1, 1);
                     //console.log("remEnemy", this, remEnemy, this.newGameSettings.tribes);
@@ -282,7 +300,7 @@ class cMainMenu extends Phaser.Scene {
                     }
                     this.tweens.add({
                         targets: remEnemy,
-                        y: y + 135 + this.newGameSettings.tribes.length * 40 - 40,
+                        y: y + 165 + this.newGameSettings.tribes.length * 70 - 70,
                         ease: 'Sine.easeInOut',       // 'Cubic', 'Elastic', 'Bounce', 'Back', 'Sine.easeInOut'
                         duration: 500,
                         repeat: 0,            // -1: infinity
@@ -290,7 +308,7 @@ class cMainMenu extends Phaser.Scene {
                     });
                     this.tweens.add({
                         targets: remEnemy.addEnemy,
-                        y: y + 135 + this.newGameSettings.tribes.length * 40,
+                        y: y + 165 + this.newGameSettings.tribes.length * 70,
                         ease: 'Sine.easeInOut',       // 'Cubic', 'Elastic', 'Bounce', 'Back', 'Sine.easeInOut'
                         duration: 500,
                         repeat: 0,            // -1: infinity
@@ -302,16 +320,16 @@ class cMainMenu extends Phaser.Scene {
                 }.bind(this, remEnemy, slider));
                 if (this.newGameSettings.tribes.length == 2) { remEnemy.visible = false } else { remEnemy.visible = true }
                 //add enemy
-                var addEnemy = this.newSprite(x + 50, y + 135 + i * 40, "addEnemy", 0, "images", "add", 0.5);
-                addEnemy.scale = 0.3;
+                var addEnemy = this.newSprite(x + 70, y + 165 + i * 70, "addEnemy", 0, "images", "add", 0.5);
+                if (this.mobile == true) { addEnemy.scale = 0.6; } else { addEnemy.scale = 0.4; }
                 addEnemy.on('pointerup', function (addEnemy, slider) {
                     var i = this.newGameSettings.tribes.length;
                     //console.log("addEnemy", this, addEnemy, this.newGameSettings.tribes, this.gameSettings.tribeMax);
                     this.newGameSettings.tribes.push({ name: "CPU_" + i, colorNr: i, aiLevel: 1 });
-                    this.newGameAddPlayer(x, y, i);
+                    this.newGameAddPlayer(x, y, i, 70);
                     this.tweens.add({
                         targets: addEnemy,
-                        y: y + 135 + this.newGameSettings.tribes.length * 40,
+                        y: y + 165 + this.newGameSettings.tribes.length * 70,
                         ease: 'Sine.easeInOut',       // 'Cubic', 'Elastic', 'Bounce', 'Back', 'Sine.easeInOut'
                         duration: 500,
                         repeat: 0,            // -1: infinity
@@ -319,7 +337,7 @@ class cMainMenu extends Phaser.Scene {
                     });
                     this.tweens.add({
                         targets: addEnemy.remEnemy,
-                        y: y + 135 + this.newGameSettings.tribes.length * 40 - 40,
+                        y: y + 165 + this.newGameSettings.tribes.length * 70 - 70,
                         ease: 'Sine.easeInOut',       // 'Cubic', 'Elastic', 'Bounce', 'Back', 'Sine.easeInOut'
                         duration: 500,
                         repeat: 0,            // -1: infinity
@@ -336,19 +354,18 @@ class cMainMenu extends Phaser.Scene {
 
 
                 //start new Game
-                var button = this.newSprite(x + 50, y + data.height - 50, "startGame", 0, "images", 'anchor', 0.5);
-                button.scale = 0.5;
+                var button = this.newSprite(x + 100, y + data.height - 60, "startGame", 0, "images", 'anchor', 0.5);
+                if (this.mobile == true) { button.scale = 0.8; } else { button.scale = 0.6; }
                 button.on('pointerup', function (button, data) {
                     localStorage.setItem("defaultNewGame", JSON.stringify(this.newGameSettings));
                     this.scene.start("playGame", this.newGameSettings);
                     this.scene.stop("mainMenu");
                 }.bind(this, button, data));
                 //StartGame
-                this.newText(x + 130, y + data.height - 50, "Set Sails!", { font: 'bold 20px Arial', fill: "black" }, 0.5);
+                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                this.newText(x + 230, y + data.height - 60, "Set Sails!", tFont, 0.5);
                 break;
             case 'statistics':
-                //Header
-                this.newText(x + 30, y + 20, "Water Tribes - Statistics", { font: 'bold 24px Arial', fill: "black" }, 0);
                 //Text
                 var saveObject = JSON.parse(localStorage.getItem("stats"));
 
@@ -387,18 +404,18 @@ class cMainMenu extends Phaser.Scene {
                     "longestWin: " + (saveObject.longestWin / 60000).toFixed(2) + "min\n" +
                     "longestLoss: " + (saveObject.longestLoss / 60000).toFixed(2) + "min";
 
-                this.newText(x + 30, y + 70, gInfo, { font: 'bold 20px Arial', fill: "black" }, 0);
+                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                this.newText(x + 60, y + 90, gInfo, tFont, 0);
                 break;
             case 'credits':
-                //Header
-                this.newText(x + 30, y + 20, "Water Tribes - Credits", { font: 'bold 24px Arial', fill: "black" }, 0);
                 //Text
                 var gInfo = "This Game was created by MW. \n" +
                     "I hope you like it.\n\n" +
                     "Special thanks to:\n" +
                     "   - my wonderful wife\n" +
                     "   - Phaser3 (Framework)"
-                this.newText(x + 30, y + 70, gInfo, { font: 'bold 20px Arial', fill: "black" }, 0);
+                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                this.newText(x + 60, y + 90, gInfo, tFont, 0);
                 break;
             case 'loadGame':
             case 'quit':
@@ -413,14 +430,15 @@ class cMainMenu extends Phaser.Scene {
         this.tweenInfoPlate(data.width, 1000);
     }
 
-    newGameAddPlayer(x, y, index) {
+    newGameAddPlayer(x, y, index, step) {
         //Playername
-        var pName = this.newText(x + 80, y + 120 + index * 40, this.newGameSettings.tribes[index].name, { font: 'bold 20px Arial', fill: "black" }, 0);
+        if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } }
+        var pName = this.newText(x + 110, y + 150 + index * step, this.newGameSettings.tribes[index].name, tFont, 0);
         pName.name = "pName";
         pName.nr = index;
         //colorpicker
-        var button = this.newSprite(x + 220, y + 130 + index * 40, "colorpicker", index, "images", "emptyBubble", 0.5);
-        button.scale = 0.3;
+        var button = this.newSprite(x + 320, y + 170 + index * step, "colorpicker", index, "images", "emptyBubble", 0.5);
+        if (this.mobile == true) { button.scale = 0.6; } else { button.scale = 0.4; }
         button.setTintFill(this.gameSettings.tribeColors[this.newGameSettings.tribes[index].colorNr].replace("#", "0x"));
         button.on('pointerup', function (button) {
             //console.log("colorchange", this, button);
@@ -431,7 +449,7 @@ class cMainMenu extends Phaser.Scene {
             for (var i = 0; i < icolors; i++) {
                 Phaser.Geom.Line.SetToAngle(iLine, button.x, button.y, i * 2 * Math.PI / icolors, button.displayWidth / 2 + button.displayWidth / 2);
                 var buttonNew = this.newSprite(iLine.x2, iLine.y2, "colorpickerNew", button.nr, "images", "emptyBubble", 0.5);
-                buttonNew.scale = 0.3;
+                if (this.mobile == true) { buttonNew.scale = 0.6; } else { buttonNew.scale = 0.4; }
                 buttonNew.setTintFill(this.gameSettings.tribeColors[i].replace("#", "0x"));
                 buttonNew.colorNr = i;
                 buttonNew.parentButton = button;
@@ -445,8 +463,8 @@ class cMainMenu extends Phaser.Scene {
         }.bind(this, button));
         if (index > 0) {
             //AI-Level
-            var button = this.newSprite(x + 310, y + 130 + index * 40, "aiLevel", index, "images", "aiLevel" + this.newGameSettings.tribes[index].aiLevel, 0.5);
-            button.scale = 0.3;
+            var button = this.newSprite(x + 510, y + 170 + index * step, "aiLevel", index, "images", "aiLevel" + this.newGameSettings.tribes[index].aiLevel, 0.5);
+            if (this.mobile == true) { button.scale = 0.6; } else { button.scale = 0.4; }
             button.on('pointerup', function (button, index) {
                 this.newGameSettings.tribes[index].aiLevel += 1;
                 if (this.newGameSettings.tribes[index].aiLevel > this.gameSettings.aiLevelMax) {
