@@ -351,8 +351,8 @@ class cMiniMap extends Phaser.Scene {
         if (this.mobile == true) {
             switch (data.type) {
                 case 'islandInfo':
-                    data.width = 620;
-                    data.height = 580;
+                    data.width = 700;
+                    data.height = 680;
                     break;
                 case "statistics":
                     data.width = this.scale.width - 100;
@@ -412,7 +412,7 @@ class cMiniMap extends Phaser.Scene {
         this.plate.strokeRect(x + 2, y + 2, data.width - 4, data.height - 4);
         //back button
         var button = this.newSprite(x, y + data.height / 2 - 50, "plateBack", 0, "images", "back", 0.1);
-        if (this.mobile == true) { button.scale = 1.7; } else { button.scale = 1.3 }
+        if (this.mobile == true) { button.scale = 1.8; } else { button.scale = 1.3 }
         button.on('pointerup', function (button, data) {
             this.tweenInfoPlate(-data.width, 700);
             this.time.addEvent({
