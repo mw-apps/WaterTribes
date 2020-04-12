@@ -7,11 +7,9 @@
  * https://gammafp.com/tools/
  * 
 ToDo:
-* save to localStorage, load from localStorage/json (maps)
+* save/load Game: localStorage/json (tribes, islands, maps, ships?)
+* sound
 **/
-
-
-
 
 class cGame extends Phaser.Scene {
     constructor() {
@@ -24,7 +22,7 @@ class cGame extends Phaser.Scene {
         this.shipGroup;      // all active Ships are stored in this group
         this.updateTimer = 0;    //Counter for the game_Update-fuction. used for the ship and build calls
         this.plotter;            //used to paint the ship path (used if this.debug == true)
-        this.gameSettings;  //we get the gameSettings out of this JSON-File
+        this.gameData;  //we get the gameData out of this JSON-File
         this.gameSpeed = 1; //start-value
         this.mute = false; //start-value
         this.cam;       //the camera of this scene
@@ -67,16 +65,17 @@ class cGame extends Phaser.Scene {
 
         //console.log("camera", aspectRatio, this.cam, 0, 0, tWidth, tHeight, "game", game.scale.width, game.scale.height);
 
-        //load the gameSettings and gameSettings
-        this.gameSettings = JSON.parse(JSON.stringify(this.cache.json.get('gameSettings')));
+        //load the gameData and gameSettings
+        this.gameData = this.cache.json.get('gameData');    //json-parce(json.stringify -> copy of the original
         //backgroundimage
         var background = this.add.sprite(-150, 0, "background");
         background.setOrigin(0);
 
         if (background.width - 200 < this.cam.bounds.width) { background.scale = (this.cam.bounds.width / (background.width - 200) * 2); }
         if (background.height - 200 < this.cam.bounds.height) { background.scale = (this.cam.bounds.height / (background.height - 200) * 2); }
-        if (this.gameSettings.backgroundTweenWave == true) {
-            var tween = this.tweens.add({
+        var settings = JSON.parse(localStorage.getItem("settings"));
+        if (settings.waveMotion == true) {
+            this.tweens.add({
                 targets: background,
                 props: {
                     x: { value: 0, duration: 8000, ease: 'Sine.easeInOut' },
@@ -90,11 +89,11 @@ class cGame extends Phaser.Scene {
         //tribes
         this.tribes = new Array();   //each tribe is stored in this group
         this.tribes[0] = (new Tribe(this, 0, 'empty', '0xffffff'));
-        this.tribes[1] = (new Tribe(this, 1, data.tribes[0].name, this.gameSettings.tribeColors[data.tribes[0].colorNr].replace("#", "0x")));
+        this.tribes[1] = (new Tribe(this, 1, data.tribes[0].name, this.gameData.tribeColors[data.tribes[0].colorNr].replace("#", "0x")));
         this.tribes[1].ai = 0;
         this.tribes[1].aiLevel = 3;
         for (var i = 1; i < data.tribes.length; i++) {
-            this.tribes[i + 1] = (new Tribe(this, i + 1, data.tribes[i].name, this.gameSettings.tribeColors[data.tribes[i].colorNr].replace("#", "0x")));
+            this.tribes[i + 1] = (new Tribe(this, i + 1, data.tribes[i].name, this.gameData.tribeColors[data.tribes[i].colorNr].replace("#", "0x")));
             this.tribes[i + 1].ai = 3;
             this.tribes[i + 1].aiLevel = data.tribes[i].aiLevel;
         }
@@ -258,11 +257,11 @@ class cGame extends Phaser.Scene {
         //create the Islands one by one
         for (i = 0; i < this.islandGroup.count; i++) {
             //get new Islandname
-            tTemp = this.gameSettings.islandNames[Math.floor(Math.random() * this.gameSettings.islandNames.length)];
+            tTemp = this.gameData.islandNames[Math.floor(Math.random() * this.gameData.islandNames.length)];
             //remove the selected name from the name pool
-            var indexName = this.gameSettings.islandNames.indexOf(tTemp);
+            var indexName = this.gameData.islandNames.indexOf(tTemp);
             if (indexName > -1) {
-                this.gameSettings.islandNames.splice(indexName, 1);
+                this.gameData.islandNames.splice(indexName, 1);
             }
 
             //create new island
@@ -596,12 +595,12 @@ class Tribe {
         if (color) {
             this.color = color;
         } else {
-            this.color = scene.gameSettings.tribeColors[Math.floor(Math.random() * scene.gameSettings.tribeColors.length)];
+            this.color = scene.gameData.tribeColors[Math.floor(Math.random() * scene.gameData.tribeColors.length)];
             //remove the selectet color from the color pool
-            var indexColor = scene.gameSettings.tribeColors.indexOf(this.color);
+            var indexColor = scene.gameData.tribeColors.indexOf(this.color);
             if (indexColor > -1) {
-                //console.log('removedColor' + indexColor, gameSettings.tribeColors, this.color);
-                scene.gameSettings.tribeColors.splice(indexColor, 1);
+                //console.log('removedColor' + indexColor, gameData.tribeColors, this.color);
+                scene.gameData.tribeColors.splice(indexColor, 1);
             }
             this.color = this.color.replace("#", "0x");
         }
@@ -912,39 +911,39 @@ class Island extends Phaser.GameObjects.Sprite {
         this.populationRate = 0.001;
         this.defence = 1;
         this.attack = 1;
-        for (i = 0; i < this.scene.gameSettings.techObjects.length; i++) {
+        for (i = 0; i < this.scene.gameData.techObjects.length; i++) {
             //get the posible Bubbles
-            if (((this.buildState & parseInt(this.scene.gameSettings.techObjects[i].comparison, 2)) == parseInt(this.scene.gameSettings.techObjects[i].expectation, 2)) && this.tribe != 0) {
-                tBubble = this.bubbleGroup.children.entries[this.scene.gameSettings.techObjects[i].bubbleNr];
-                tBubble.setTexture('images', this.scene.gameSettings.techObjects[i].textureName);
-                tBubble.setting = parseInt(this.scene.gameSettings.techObjects[i].binary, 2);
-                tBubble.constDuration = this.scene.gameSettings.techObjects[i].constDuration;
+            if (((this.buildState & parseInt(this.scene.gameData.techObjects[i].comparison, 2)) == parseInt(this.scene.gameData.techObjects[i].expectation, 2)) && this.tribe != 0) {
+                tBubble = this.bubbleGroup.children.entries[this.scene.gameData.techObjects[i].bubbleNr];
+                tBubble.setTexture('images', this.scene.gameData.techObjects[i].textureName);
+                tBubble.setting = parseInt(this.scene.gameData.techObjects[i].binary, 2);
+                tBubble.constDuration = this.scene.gameData.techObjects[i].constDuration;
                 switch (this.scene.tribes[this.tribe].aiLevel) {
                     case 1:
-                        tBubble.aiProbability = this.scene.gameSettings.defaultAiProbability + this.scene.gameSettings.techObjects[i].aiProbability / 2;
+                        tBubble.aiProbability = this.scene.gameData.defaultAiProbability + this.scene.gameData.techObjects[i].aiProbability / 2;
                         break;
                     case 2:
-                        tBubble.aiProbability = this.scene.gameSettings.defaultAiProbability / 2 + this.scene.gameSettings.techObjects[i].aiProbability;
+                        tBubble.aiProbability = this.scene.gameData.defaultAiProbability / 2 + this.scene.gameData.techObjects[i].aiProbability;
                         break;
                     case 3:
-                        tBubble.aiProbability = this.scene.gameSettings.techObjects[i].aiProbability;
+                        tBubble.aiProbability = this.scene.gameData.techObjects[i].aiProbability;
                         break;
                 }
-                if (this.scene.gameSettings.techObjects[i].addShip > 0) {
+                if (this.scene.gameData.techObjects[i].addShip > 0) {
                     this.scene.tribes[this.tribe].shipCounter++;
                 }
-                if (this.scene.gameSettings.techObjects[i].bubbleNr < 5) {
+                if (this.scene.gameData.techObjects[i].bubbleNr < 5) {
                     visibleBubbles++;
                 }
                 //console.log(tBubble.nr + '_' + tBubble.aiProbability);
             } else {
                 //calculate the island-properties, depending on the built buildings
-                if (this.buildState & parseInt(this.scene.gameSettings.techObjects[i].binary, 2)) {
-                    //console.log("already built", this.scene.gameSettings.techObjects[i].textureName, this.nr, this.buildState, parseInt(this.scene.gameSettings.techObjects[i].binary, 2));
-                    this.buildSpeed += this.scene.gameSettings.techObjects[i].addBuildSpeed;
-                    this.populationRate += this.scene.gameSettings.techObjects[i].addPopGrowth;
-                    this.defence += this.scene.gameSettings.techObjects[i].addDefence;
-                    this.attack += this.scene.gameSettings.techObjects[i].addAttack;
+                if (this.buildState & parseInt(this.scene.gameData.techObjects[i].binary, 2)) {
+                    //console.log("already built", this.scene.gameData.techObjects[i].textureName, this.nr, this.buildState, parseInt(this.scene.gameData.techObjects[i].binary, 2));
+                    this.buildSpeed += this.scene.gameData.techObjects[i].addBuildSpeed;
+                    this.populationRate += this.scene.gameData.techObjects[i].addPopGrowth;
+                    this.defence += this.scene.gameData.techObjects[i].addDefence;
+                    this.attack += this.scene.gameData.techObjects[i].addAttack;
                 }
             }
         }
@@ -1190,11 +1189,11 @@ class Island extends Phaser.GameObjects.Sprite {
         } else {
             tShip = new Ship(this.scene);
         }
-        for (i = 0; i < this.scene.gameSettings.shipObjects.length; i++) {
-            if (this.bubbleGroup.children.entries[7].setting == parseInt(this.scene.gameSettings.shipObjects[i].expectation, 2)) {
-                tShip.setTexture('images', this.scene.gameSettings.shipObjects[i].textureName);
-                tShip.speed = this.scene.gameSettings.shipObjects[i].speed;
-                tShip.defence = this.scene.gameSettings.shipObjects[i].defence;
+        for (i = 0; i < this.scene.gameData.shipObjects.length; i++) {
+            if (this.bubbleGroup.children.entries[7].setting == parseInt(this.scene.gameData.shipObjects[i].expectation, 2)) {
+                tShip.setTexture('images', this.scene.gameData.shipObjects[i].textureName);
+                tShip.speed = this.scene.gameData.shipObjects[i].speed;
+                tShip.defence = this.scene.gameData.shipObjects[i].defence;
                 break;
             }
         }
@@ -1211,7 +1210,7 @@ class Island extends Phaser.GameObjects.Sprite {
         tShip.waypoints = this.scene.setShipPath(tShip.x - tShip.displayWidth / 2, tShip.y + 15, this.scene.islandGroup.children.entries[aimIslandNr]);
         //rotate the Ship to the nearest angle (=> max +-180°)
         tShip.waypoints[0].angle = tShip.rotation + Math.atan2(Math.sin(tShip.waypoints[0].angle - tShip.rotation), Math.cos(tShip.waypoints[0].angle - tShip.rotation));
-        //if(this.bubbleGroup.children.entries[7].setting = gameSettings.techObjects.find)
+        //if(this.bubbleGroup.children.entries[7].setting = gameData.techObjects.find)
         //console.log("setSails", this, tShip, aimIsland)
 
         //this.scene.add.tween(tShip).to({ x: tShip.waypoints[0].x, y: tShip.waypoints[0].y, speed: tShip.speed }, 800, Phaser.Easing.Sinusoidal.In, true, 0, 0, false);
@@ -1286,7 +1285,7 @@ class Bubble extends Phaser.GameObjects.Sprite {
 //Ship
 class Ship extends Phaser.GameObjects.Sprite {
     constructor(scene) {
-        //console.log("cShip", scene, shipType, scene.gameSettings, scene.gameSettings.shipObjects.length, parseInt(scene.gameSettings.shipObjects[0].expectation, 2));
+        //console.log("cShip", scene, shipType, scene.gameData, scene.gameData.shipObjects.length, parseInt(scene.gameData.shipObjects[0].expectation, 2));
         //load Ship sprite and set some settings
         super(scene, 0, 0, 'images', 'ship');   //real sprite goto setSails
         this.setOrigin(0.5, 0.5);

@@ -14,6 +14,8 @@ class cMiniMap extends Phaser.Scene {
         this.plate;
         this.miniMapBubble;
         this.mobile = false;
+        this.lang;
+        this.settings = {};
     }
 
     create() {
@@ -23,7 +25,9 @@ class cMiniMap extends Phaser.Scene {
         var iLine = new Phaser.Geom.Line();
         this.spriteGroup = this.add.group();
         this.textGroup = this.add.group();
-
+        this.lang = this.cache.json.get('language');
+        this.settings = JSON.parse(localStorage.getItem("settings"));
+        
         //differ between mobile and desktop (action-button size)
         if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
             this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle) {
@@ -424,13 +428,13 @@ class cMiniMap extends Phaser.Scene {
 
         //Header
         switch (data.type) {
-            case 'islandInfo': var tHeader = "Island Info"; break;
-            case "statistics": var tHeader = "Statistics"; break;
-            case 'exit': var tHeader = "Quit?"; break;
-            case 'aiHelp': var tHeader = "Need Help?"; break;
+            case 'islandInfo': var tHeader = this.lang.mm_i_header[this.settings.lang]; break;
+            case "statistics": var tHeader = this.lang.mm_s_header[this.settings.lang]; break;
+            case 'exit': var tHeader = this.lang.mm_e_header[this.settings.lang]; break;
+            case 'aiHelp': var tHeader = this.lang.mm_h_header[this.settings.lang]; break;
             default:
         }
-        if (this.mobile == true) { var tFont = { font: 'bold 45px Arial', fill: "black" } } else { var tFont = { font: 'bold 35px Arial', fill: "black" } }
+        if (this.mobile == true) { var tFont = { font: 'bold 45px Arial', fill: 'black' } } else { var tFont = { font: 'bold 35px Arial', fill: 'black' } }
         this.newText(x + 40, y + 18, tHeader, tFont, 0);
         //separator
         this.plate.fillStyle('0x7bb4f2', 1);
@@ -443,21 +447,21 @@ class cMiniMap extends Phaser.Scene {
                 //infotext
                 var tIsland = data.island;
                 var iInfo =
-                    "Name: " + tIsland.name + "\n" +
-                    "Nr: " + tIsland.nr + "\n" +
-                    "Scale: " + tIsland.scale + "\n" +
-                    "buildState: " + tIsland.buildState + "\n" +
-                    "buildSpeed: " + tIsland.buildSpeed + "\n" +
-                    "currBuild: " + tIsland.currentBuild + "\n" +
-                    "currBuildConstTime: " + tIsland.currentBuildConstTime.toFixed(0) + "\n" +
-                    "currBuildConstMax: " + tIsland.currentBuildConstMax + "\n" +
-                    "population: " + tIsland.population.toFixed(3) + "\n" +
-                    "populationRate: " + tIsland.populationRate.toFixed(3) + "\n" +
-                    "defence: " + tIsland.defence.toFixed(3) + "\n" +
-                    "attack: " + tIsland.attack.toFixed(3) + "\n" + "\n" +
-                    "player: " + this.gameScene.tribes[tIsland.tribe].name + "\n" +
-                    "Ai-Level: " + this.gameScene.tribes[tIsland.tribe].aiLevel;
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } }
+                    this.lang.mm_i_name[this.settings.lang] + ": " + tIsland.name + "\n" +
+                    this.lang.mm_i_nr[this.settings.lang] + ": " + tIsland.nr + "\n" +
+                    this.lang.mm_i_scale[this.settings.lang] + ": " + tIsland.scale + "\n" +
+                    this.lang.mm_i_buildState[this.settings.lang] + ": " + tIsland.buildState + "\n" +
+                    this.lang.mm_i_buildSpeed[this.settings.lang] + ": " + tIsland.buildSpeed + "\n" +
+                    this.lang.mm_i_currBuild[this.settings.lang] + ": " + tIsland.currentBuild + "\n" +
+                    this.lang.mm_i_currBuildConstTime[this.settings.lang] + ": " + tIsland.currentBuildConstTime.toFixed(0) + "\n" +
+                    this.lang.mm_i_currBuildConstMax[this.settings.lang] + ": " + tIsland.currentBuildConstMax + "\n" +
+                    this.lang.mm_i_population[this.settings.lang] + ": " + tIsland.population.toFixed(3) + "\n" +
+                    this.lang.mm_i_populationRate[this.settings.lang] + ": " + tIsland.populationRate.toFixed(3) + "\n" +
+                    this.lang.mm_i_defence[this.settings.lang] + ": " + tIsland.defence.toFixed(3) + "\n" +
+                    this.lang.mm_i_attack[this.settings.lang] + ": " + tIsland.attack.toFixed(3) + "\n" + "\n" +
+                    this.lang.mm_i_player[this.settings.lang] + ": " + this.gameScene.tribes[tIsland.tribe].name + "\n" +
+                    this.lang.mm_i_aiLevel[this.settings.lang] + ": " + this.gameScene.tribes[tIsland.tribe].aiLevel;
+                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: 'black' } } else { var tFont = { font: 'bold 28px Arial', fill: 'black' } }
                 this.newText(x + 70, y + 80, iInfo, tFont, 0);
 
                 break;
@@ -469,30 +473,31 @@ class cMiniMap extends Phaser.Scene {
                 var startTime = data.statistics[0].time;
                 var endTime = data.statistics[data.statistics.length - 1].time;
                 var diffTime = new Date(endTime - startTime);
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } }
-                this.newText(x + data.width - 450, y + data.height - 90,
-                    'playtime: ' + ('0' + diffTime.getMinutes()).substr(-2) + ":" +
+                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: 'black' } } else { var tFont = { font: 'bold 28px Arial', fill: 'black' } }
+                this.newText(x + data.width - 470, y + data.height - 90,
+                    this.lang.mm_s_playtime[this.settings.lang] + ": " + ('0' + diffTime.getMinutes()).substr(-2) + ":" +
                     ('0' + diffTime.getSeconds()).substr(-2), tFont, 0);
                 //SubHeader
-                if (this.mobile == true) { var tFont = { font: 'bold 40px Arial', fill: "black" } } else { var tFont = { font: 'bold 34px Arial', fill: "black" } }
-                var subheader = this.newText(x + data.width / 2, y + 100, 'islands', tFont, 0);
+                if (this.mobile == true) { var tFont = { font: 'bold 40px Arial', fill: 'black' } } else { var tFont = { font: 'bold 34px Arial', fill: 'black' } }
+                var subheader = this.newText(x + data.width / 2, y + 100, this.lang.mm_s_islands[this.settings.lang], tFont, 0);
 
                 //different buttons
                 var subTypeText;
                 var subIcon;
+                var subHeaderText;
                 for (i = 1; i <= 3; i++) {
                     switch (i) {
-                        case 1: subTypeText = "islands"; subIcon = "islands"; break;
-                        case 2: subTypeText = "population"; subIcon = "population"; break;
-                        case 3: subTypeText = "buildings"; subIcon = "techTree"; break;
+                        case 1: subTypeText = "islands"; subIcon = "islands"; subHeaderText = this.lang.mm_s_islands[this.settings.lang]; break;
+                        case 2: subTypeText = "population"; subIcon = "population"; subHeaderText = this.lang.mm_s_population[this.settings.lang]; break;
+                        case 3: subTypeText = "buildings"; subIcon = "techTree"; subHeaderText = this.lang.mm_s_buildings[this.settings.lang]; break;
                     }
                     var button = this.newSprite(x + 200, y + i * 200, "statisticsSubtype", i, "images", subIcon, 0.5);
-                    button.on('pointerup', function (x, y, data, graph, subheader, subTypeText) {
+                    button.on('pointerup', function (x, y, data, graph, subheader, subTypeText, subHeaderText) {
                         //console.log("setInfoPlateSubType", data);
                         data.subtype = subTypeText;
-                        subheader.text = subTypeText;
+                        subheader.text = subHeaderText;
                         this.setInfoPlateSubType(x, y, data, graph);
-                    }.bind(this, x, y, data, graph, subheader, subTypeText));
+                    }.bind(this, x, y, data, graph, subheader, subTypeText, subHeaderText));
 
                 }
                 //color & tribe-names
@@ -506,12 +511,8 @@ class cMiniMap extends Phaser.Scene {
                 break;
             case "exit":
                 //infotext
-                var iInfo = "Do you really want\n" +
-                    "to Quit this Game?\n" +
-                    "It'll be rated as defeat,\n" +
-                    "you coward fool!"
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } }
-                this.newText(x + 70, y + 80, iInfo, tFont, 0);
+                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: 'black' } } else { var tFont = { font: 'bold 28px Arial', fill: 'black' } }
+                this.newText(x + 70, y + 80, this.lang.mm_e_text[this.settings.lang], tFont, 0);
                 //quit Button
                 var button = this.newSprite(x + (data.width - 200) / 2, y + data.height - 80, "quit", 0, "images", "door", 0.5);
                 if (this.mobile == true) { button.scale = 1.4; } else { button.scale = 1.0 }
@@ -531,12 +532,10 @@ class cMiniMap extends Phaser.Scene {
                 break;
             case "aiHelp":
                 //infotext
-                var iInfo = "If you need help, let\n" +
-                    "the AI support you."
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } }
-                this.newText(x + 70, y + 80, iInfo, tFont, 0);
-                this.newText(x + 130, y + 230, "aiAttack:", tFont, 0.5);
-                this.newText(x + 130, y + data.height - 60, "aiBuild:", tFont, 0.5);
+                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: 'black' } } else { var tFont = { font: 'bold 28px Arial', fill: 'black' } }
+                this.newText(x + 70, y + 80, this.lang.mm_h_text[this.settings.lang], tFont, 0);
+                this.newText(x + 130, y + 230, this.lang.mm_h_attack[this.settings.lang], tFont, 0.5);
+                this.newText(x + 130, y + data.height - 60, this.lang.mm_h_build[this.settings.lang], tFont, 0.5);
                 //attack Button
                 var button = this.newSprite(x + data.width - 290, y + 230, "aiHelp", 0, "images", "aiAttack", 0.5);
                 if (this.mobile == true) { button.scale = 0.9; } else { button.scale = 0.6; }
