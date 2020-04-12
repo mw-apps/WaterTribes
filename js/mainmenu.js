@@ -1,5 +1,5 @@
 ﻿/** @type {import("./node_modules/phaser.js")} */
-//// <reference path="node_modules/phaser.js" />
+/// <reference path="node_modules/phaser.js" />
 
 
 
@@ -120,6 +120,8 @@ class cMainMenu extends Phaser.Scene {
                 console.log("pwa_support");
             }
         }
+        //start sound scene
+        this.scene.run("soundScene");   //run: If the given Scene is paused, it will resume it. If sleeping, it will wake it. If not running at all, it will be started.
     }
 
     setInfoPlate(data) {
@@ -377,6 +379,7 @@ class cMainMenu extends Phaser.Scene {
                 var button = this.newSprite(x + 100, y + data.height - 60, "startGame", 0, "images", 'anchor', 0.5);
                 if (this.mobile == true) { button.scale = 0.8; } else { button.scale = 0.6; }
                 button.on('pointerup', function (button, data) {
+                    game.events.emit('toSoundMsg', { type: 'startGame' });
                     localStorage.setItem("defaultNewGame", JSON.stringify(this.newGameSettings));
                     this.scene.start("playGame", this.newGameSettings);
                     this.scene.stop("mainMenu");
@@ -452,10 +455,9 @@ class cMainMenu extends Phaser.Scene {
                 var button = this.newSprite(x + 100, y + 280, "options", 1, "images", 'sound', 0.5);
                 if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
-                    console.log("pup", this.scene.settings.music);
                     this.scene.settings.music = !this.scene.settings.music;
-                    console.log("pup", this.scene.settings.music);
                     localStorage.setItem("settings", JSON.stringify(this.scene.settings));
+                    game.events.emit('toSoundMsg', { type: 'updateSettings' });
                     if (this.scene.settings.music) {
                         this.setTint("0xed5400");
                     } else {
@@ -470,6 +472,7 @@ class cMainMenu extends Phaser.Scene {
                 button.on('pointerup', function () {
                     this.scene.settings.sfx = !this.scene.settings.sfx;
                     localStorage.setItem("settings", JSON.stringify(this.scene.settings));
+                    game.events.emit('toSoundMsg', { type: 'updateSettings' });
                     if (this.scene.settings.sfx) {
                         this.setTint("0xed5400");
                     } else {
@@ -489,9 +492,9 @@ class cMainMenu extends Phaser.Scene {
                 button.on('pointerup', function () {
                     this.scene.settings.lang = "en";
                     localStorage.setItem("settings", JSON.stringify(this.scene.settings));
-                    for(var i = 0; i < this.scene.spriteGroup.children.entries.length; i++) {
-                        if (this.scene.spriteGroup.children.entries[i].name == "optionsLanguage") { 
-                            this.scene.spriteGroup.children.entries[i].clearTint(); 
+                    for (var i = 0; i < this.scene.spriteGroup.children.entries.length; i++) {
+                        if (this.scene.spriteGroup.children.entries[i].name == "optionsLanguage") {
+                            this.scene.spriteGroup.children.entries[i].clearTint();
                         }
                     }
                     this.setTint("0xed5400");
@@ -504,9 +507,9 @@ class cMainMenu extends Phaser.Scene {
                 button.on('pointerup', function () {
                     this.scene.settings.lang = "de";
                     localStorage.setItem("settings", JSON.stringify(this.scene.settings));
-                    for(var i = 0; i < this.scene.spriteGroup.children.entries.length; i++) {
-                        if (this.scene.spriteGroup.children.entries[i].name == "optionsLanguage") { 
-                            this.scene.spriteGroup.children.entries[i].clearTint(); 
+                    for (var i = 0; i < this.scene.spriteGroup.children.entries.length; i++) {
+                        if (this.scene.spriteGroup.children.entries[i].name == "optionsLanguage") {
+                            this.scene.spriteGroup.children.entries[i].clearTint();
                         }
                     }
                     this.setTint("0xed5400");
@@ -615,7 +618,9 @@ class cMainMenu extends Phaser.Scene {
         button.setOrigin(origin);
         button.removeAllListeners();
         button.setInteractive();
-
+        button.on('pointerup', function () {
+            game.events.emit('toSoundMsg', { type: 'btnClick' });
+        });
         switch (name) {
             case "colorpicker":
             case "colorpickerNew":

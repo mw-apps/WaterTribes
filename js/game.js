@@ -24,7 +24,6 @@ class cGame extends Phaser.Scene {
         this.plotter;            //used to paint the ship path (used if this.debug == true)
         this.gameData;  //we get the gameData out of this JSON-File
         this.gameSpeed = 1; //start-value
-        this.mute = false; //start-value
         this.cam;       //the camera of this scene
         this.controls;  //cursor-keys
         this.statistics = new Array();    //save all events (newIsland, buildprocess, polulation) for some statistics
@@ -157,7 +156,7 @@ class cGame extends Phaser.Scene {
             }, this);
 
         // Listen for events
-        this.events.on('toGameMsg', function (data) {
+        game.events.on('toGameMsg', function (data) {
             this.newMessage(data);
         }, this);
 
@@ -176,10 +175,9 @@ class cGame extends Phaser.Scene {
         //console.log("Game_newMessage", this, data); 
         switch (data.type) {
             case "init":
-                this.events.emit('toMiniMapMsg', { type: 'init', mute: this.mute, gameSpeed: this.gameSpeed, tribeAi: this.tribes[1].ai });
+                game.events.emit('toMiniMapMsg', { type: 'init', gameSpeed: this.gameSpeed, tribeAi: this.tribes[1].ai });
                 break;
             case 'update':
-                if ("mute" in data) { this.mute = data.mute; }
                 if ("gameSpeed" in data) { this.gameSpeed = data.gameSpeed };
                 if ("tribeAi" in data) { this.tribes[1].ai = data.tribeAi };
                 break;
@@ -649,7 +647,7 @@ class Tribe {
         //assign the island to this tribe
         this.islands.push(islandNr);
         //update the map
-        if (scene.status == "playing") { scene.events.emit('toMiniMapMsg', { type: 'newIsland' }); }
+        if (scene.status == "playing") { game.events.emit('toMiniMapMsg', { type: 'newIsland' }); }
     };
 
     aiBuild(scene) {
@@ -1039,11 +1037,11 @@ class Island extends Phaser.GameObjects.Sprite {
     update() {
     };
 
-    newBuild(tBubble, click) {
-        //console.log('Build_', this, tBubble, click);
+    newBuild(tBubble, pointer) {
+        //console.log('Build_', this, tBubble, pointer);
         var i;
-        if (click != null) {
-            if (Phaser.Math.Distance.Between(click.upX, click.upY, click.downX, click.downY) > 20) {
+        if (pointer != null) {
+            if (Phaser.Math.Distance.Between(pointer.upX, pointer.upY, pointer.downX, pointer.downY) > 20) {
                 console.log('cancel_bubble_click');
                 return;
             }
@@ -1052,6 +1050,7 @@ class Island extends Phaser.GameObjects.Sprite {
         //cancel the current build, or start a new one
         if (tBubble.setting == this.currentBuild) {
             //cancel currentBuild
+            if (pointer != null) { game.events.emit('toSoundMsg', { type: 'cancelBuild' }); }
             this.currentBuild = 0;
             this.bubbleGroup.children.entries[0].visible = false;
             this.bubbleGroup.children.entries[0].setting = 0;
@@ -1063,6 +1062,7 @@ class Island extends Phaser.GameObjects.Sprite {
         else {
             //console.log('Build_start_' + tIsland.nr + '_' + tBubble.setting);
             if (tBubble.nr < 6) {
+                if (pointer != null) { game.events.emit('toSoundMsg', { type: 'startBuild' }); }
                 //construction bubbles: overgive the settings from the bubble to the island
                 this.currentBuild = tBubble.setting;
                 this.currentBuildConstTime = 0;
@@ -1092,6 +1092,7 @@ class Island extends Phaser.GameObjects.Sprite {
             else {
                 //MultiAttack: just select the Islands, that are ready to attack - they all will send their troops to the next Island that is clicked (function setsails)
                 if (tBubble.nr == 6) { //steeringweel
+                    if (pointer != null) { game.events.emit('toSoundMsg', { type: 'steeringweel' }); }
                     var tTribe = this.scene.tribes[this.tribe];
                     if (tBubble.selected != true) {
                         tBubble.selected = true;
@@ -1169,9 +1170,10 @@ class Island extends Phaser.GameObjects.Sprite {
         var tShip;
         var i;
         if (typeof aimIsland === 'object') {
-            aimIslandNr = aimIsland.nr;
+            aimIslandNr = aimIsland.nr; //click
+            game.events.emit('toSoundMsg', { type: 'setSails' });
         } else {
-            aimIslandNr = aimIsland;
+            aimIslandNr = aimIsland;    //ai
         }
 
         //check if there is a free ship-sprite to use
@@ -1210,11 +1212,7 @@ class Island extends Phaser.GameObjects.Sprite {
         tShip.waypoints = this.scene.setShipPath(tShip.x - tShip.displayWidth / 2, tShip.y + 15, this.scene.islandGroup.children.entries[aimIslandNr]);
         //rotate the Ship to the nearest angle (=> max +-180°)
         tShip.waypoints[0].angle = tShip.rotation + Math.atan2(Math.sin(tShip.waypoints[0].angle - tShip.rotation), Math.cos(tShip.waypoints[0].angle - tShip.rotation));
-        //if(this.bubbleGroup.children.entries[7].setting = gameData.techObjects.find)
         //console.log("setSails", this, tShip, aimIsland)
-
-        //this.scene.add.tween(tShip).to({ x: tShip.waypoints[0].x, y: tShip.waypoints[0].y, speed: tShip.speed }, 800, Phaser.Easing.Sinusoidal.In, true, 0, 0, false);
-        //var tween = game.add.tween(tShip).to({ rotation: tShip.waypoints[0].angle }, 800, Phaser.Easing.Sinusoidal.Out, true, 0, 0, false);
         this.scene.shipGroup.add(tShip);
 
         //move the ship slowly to the starting position
@@ -1254,12 +1252,12 @@ class Island extends Phaser.GameObjects.Sprite {
             for (i = 0; i < this.scene.tribes[1].multiAttack.size; i++) {
                 iNr = iNrs.next().value[0];
                 //console.log('multiAttack: ', this.scene.islandGroup.children.entries[iNr].name, this.name);
-                this.scene.islandGroup.children.entries[iNr].setSails(this.nr);
+                this.scene.islandGroup.children.entries[iNr].setSails(this);
             }
             this.scene.tribes[1].multiAttack.clear();
         } else {
             //show the details of this island
-            this.scene.events.emit('toMiniMapMsg', { type: 'islandInfo', island: this });
+            game.events.emit('toMiniMapMsg', { type: 'islandInfo', island: this });
         }
     }
 }
@@ -1333,9 +1331,16 @@ class Ship extends Phaser.GameObjects.Sprite {
             aimIsland.population -= attackers;
             if (aimIsland.population < 0) {
                 //new owner
+                if (aimIsland.tribe == 1) {     //loss
+                    game.events.emit('toSoundMsg', { type: 'lostIsland' });
+                } else if (this.tribe == 1) {   //win
+                    game.events.emit('toSoundMsg', { type: 'conqueredIsland' });
+                }
                 aimIsland.population *= -1;
                 aimIsland.currentBuildConstTime /= 2;
                 this.scene.tribes[this.tribe].newIsland(this.scene, this.aim);
+            } else {
+                game.events.emit('toSoundMsg', { type: 'arrival' });
             }
         }
 
