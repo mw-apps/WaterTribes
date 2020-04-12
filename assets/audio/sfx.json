@@ -1,0 +1,82 @@
+{
+	"resources": [
+		"./assets/audio/sfx.mp3"
+	],
+	"spritemap": {
+		"bell": {
+			"start": 0,
+			"end": 2.11,
+			"loop": false,
+			"orgName": "Two_Bells,Ship_Time.wav_by_Benboncan",
+			"source": "https://freesound.org/people/Benboncan/sounds/77699/"
+		},
+		"shatter": {
+			"start": 3.05,
+			"end": 3.91,
+			"loop": false,
+			"orgName": "Shield_Bash_Impact_by_Hybrid_V",
+			"source": "https://freesound.org/people/Hybrid_V/sounds/319590/"
+		},
+		"wave": {
+			"start": 4.45,
+			"end": 7.01,
+			"loop": false,
+			"orgName": "OneWaveInTelukNipah.wav_by_LoopUdu",
+			"source": "https://freesound.org/people/LoopUdu/sounds/263600/"
+		},
+		"drum": {
+			"start": 7.83,
+			"end": 10.43,
+			"loop": false,
+			"orgName": "loud_explosion_131231_04.wav_by_klankbeeld",
+			"source": "https://freesound.org/people/klankbeeld/sounds/212594/"
+		},
+		"hammer": {
+			"start": 12.48,
+			"end": 13.67,
+			"loop": false,
+			"orgName": "hammer_v1.wav_by_blukotek",
+			"source": "https://freesound.org/people/blukotek/sounds/337816/"
+		},
+		"hammerFall": {
+			"start": 15.09,
+			"end": 15.57,
+			"loop": false,
+			"orgName": "Hammer_falls_to_wood_floor_by_odditonic",
+			"source": "https://freesound.org/people/odditonic/sounds/388833/"
+		},
+		"battleCry": {
+			"start": 17.78,
+			"end": 20.35,
+			"loop": false,
+			"orgName": "angriff.wav_by_Erdie",
+			"source": "https://freesound.org/people/Erdie/sounds/165614/"
+		},
+		"warCry": {
+			"start": 21.55,
+			"end": 24.27,
+			"loop": false,
+			"orgName": "angriff.wav_by_Erdie",
+			"source": "https://freesound.org/people/Erdie/sounds/165614/"
+		},
+		"final": {
+			"start": 24.96,
+			"end": 44.09,
+			"loop": false,
+			"orgName": "Riser_#42_-_Medieval_Witcher_by_Ellary",
+			"source": "https://freesound.org/people/Ellary/sounds/504893/"
+		},
+		"click": {
+			"start": 44.83,
+			"end": 45.05,
+			"loop": false,
+			"orgName": "Hammer_Hit_4.wav_by_kwahmah_02",
+			"source": "https://freesound.org/people/kwahmah_02/sounds/249518/"
+		}
+	},
+	"meta": {
+		"creator": "mw-apps",
+		"version": "0.1",
+		"website": "https://github.com/mw-apps/WaterTribes"
+	}
+}
