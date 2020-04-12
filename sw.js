@@ -1,6 +1,6 @@
 ﻿//workbox.precaching.precacheAndRoute(__precacheManifest)
 
-var cacheName = 'watertribes-sw-v5';
+var cacheName = 'watertribes-sw-v6';
 var filesToCache = [
     './index.html',
     './favicon.png',
