@@ -45,14 +45,6 @@ class cMainMenu extends Phaser.Scene {
         this.gameData = this.cache.json.get('gameData');    //json-parce(json.stringify -> copy of the original
         this.lang = this.cache.json.get('language');
         this.settings = JSON.parse(localStorage.getItem("settings"));
-        if (this.settings == undefined) {
-            this.settings = {};
-            this.settings.waveMotion = true;
-            this.settings.music = true;
-            this.settings.sfx = true;
-            this.settings.lang = "en";
-            localStorage.setItem("settings", JSON.stringify(this.settings));
-        }
         //start settings
         this.newGameSettings = JSON.parse(localStorage.getItem("defaultNewGame"));
         if (this.newGameSettings == undefined) {
@@ -120,8 +112,6 @@ class cMainMenu extends Phaser.Scene {
                 console.log("pwa_support");
             }
         }
-        //start sound scene
-        this.scene.run("soundScene");   //run: If the given Scene is paused, it will resume it. If sleeping, it will wake it. If not running at all, it will be started.
     }
 
     setInfoPlate(data) {

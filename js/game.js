@@ -44,12 +44,10 @@ class cGame extends Phaser.Scene {
             data.loadGame = 0;
         }
         //world-settings
-        this.backgroundColor = '#2244FF';
-        var aspectRatio;
-
         //set the bounds of the world
         //gamearea: 2000x2000=4000000px
         //if (game.scale.height < game.scale.width) { aspectRatio = game.scale.height / game.scale.width; } else { aspectRatio = game.scale.width / game.scale.height; };
+        var aspectRatio;
         aspectRatio = game.scale.height / game.scale.width;
         var tWidth = Math.sqrt(4000000 / aspectRatio);
         var tHeight = tWidth * aspectRatio;

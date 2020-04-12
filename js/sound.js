@@ -27,6 +27,7 @@ class cSound extends Phaser.Scene {
     }
 
     create() {
+        console.log("createSound");
         this.settings = JSON.parse(localStorage.getItem('settings'));
 
         //start the background music
@@ -88,8 +89,25 @@ class cSound extends Phaser.Scene {
                 this.sfx.play('drum');
                 break;
             case 'endGame':
+                if (this.music.mute == false) {
+                    this.music.orgVolume = this.music.volume;
+                    this.tweens.add({        //fadeout the background music
+                        targets: this.music,
+                        volume: 0,
+                        duration: 1000
+                    });
+                }
                 //this.sfx.play('final');
-                if (this.sfx.mute == false) { this.sound.playAudioSprite('sfx', 'final'); }    //this way the final song will not be stopped 
+                if (this.sfx.mute == false) {
+                    var finalSound = this.sound.addAudioSprite('sfx');  //this way the final song will not be stopped
+                    finalSound.play('final');
+                    finalSound.once('complete', function () {
+                        if (this.music.mute == false) {
+                            this.music.volume = this.music.orgVolume;
+                            this.music.play();
+                        }
+                    }.bind(this));    //restart music
+                }
                 break;
             case 'mute':
                 this.sound.mute = data.mute;

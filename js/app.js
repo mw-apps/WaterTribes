@@ -22,7 +22,7 @@ window.onload = function () {
         height: '100%',
         backgroundColor: '#000000',
         type: Phaser.WEBGL,
-        scene: [cMainMenu, cGame, cMiniMap, cSound],
+        scene: [cPreload, cMainMenu, cGame, cMiniMap, cSound],
         physics: {
             default: "arcade",
             arcade: {
