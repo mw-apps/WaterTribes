@@ -1,0 +1,272 @@
+{
+	"languages": [
+		"en",
+		"de"
+	],
+	"menu_header": {
+		"en": "Water Tribes",
+		"de": "Water Tribes"
+	},
+	"menu_newGame": {
+		"en": "new Game",
+		"de": "neues Spiel"
+	},
+	"menu_loadGame": {
+		"en": "load Game",
+		"de": "Spiel laden"
+	},
+	"menu_options": {
+		"en": "Options",
+		"de": "Optionen"
+	},
+	"menu_statistics": {
+		"en": "Statistics",
+		"de": "Statistik"
+	},
+	"menu_credits": {
+		"en": "Credits",
+		"de": "Credits"
+	},
+	"menu_quit": {
+		"en": "Quit",
+		"de": "Ende"
+	},
+	"menu_pwaBubble": {
+		"en": "Play this Game as a\nPWA-App, for best\nUserexpereance &\nPerformance\n  (click me)",
+		"de": " Für das optimale\nSpielerlebnis, lade\n   das Spiel als\n     PWA-App.\n     (click me)"
+	},
+	"menu_nG_header": {
+		"en": "New Game",
+		"de": "Spiel erstellen"
+	},
+	"menu_nG_player": {
+		"en": "Player",
+		"de": "Spieler"
+	},
+	"menu_nG_color": {
+		"en": "color",
+		"de": "Farbe"
+	},
+	"menu_nG_level": {
+		"en": "Level",
+		"de": "Level"
+	},
+	"menu_nG_islands": {
+		"en": "Number of Islands",
+		"de": "Wie viele Inseln?"
+	},
+	"menu_nG_start": {
+		"en": "Set Sails!",
+		"de": "Leinen los!"
+	},
+	"menu_s_header": {
+		"en": "Statistics",
+		"de": "Statistik"
+	},
+	"menu_s_gamesTotal": {
+		"en": "games total",
+		"de": "Spiele gesamt"
+	},
+	"menu_s_enemiesTotal": {
+		"en": "Enemies total",
+		"de": "Gegner gesamt"
+	},
+	"menu_s_timeTotal": {
+		"en": "Time total",
+		"de": "gesamt Spielzeit"
+	},
+	"menu_s_win": {
+		"en": "win",
+		"de": "Siege"
+	},
+	"menu_s_loss": {
+		"en": "loss",
+		"de": "Niederlagen"
+	},
+	"menu_s_enemiesWonTotal": {
+		"en": "Enemies won total",
+		"de": "Summe besiegte Gegner"
+	},
+	"menu_s_enemiesLostTotal": {
+		"en": "Enemies lost total",
+		"de": "Summe unterleger Gegner"
+	},
+	"menu_s_longestWinStreak": {
+		"en": "longest win streak",
+		"de": "längste Siegesserie"
+	},
+	"menu_s_longestLossStreak": {
+		"en": "longest loss streak",
+		"de": "längste Verlustserie"
+	},
+	"menu_s_actualStreak": {
+		"en": "actual streak",
+		"de": "aktuelle Serie"
+	},
+	"menu_s_fastestWin": {
+		"en": "fastest win",
+		"de": "schnellster Sieg"
+	},
+	"menu_s_fastestLoss": {
+		"en": "fastest loss",
+		"de": "schnellste Niederlage"
+	},
+	"menu_s_longestWin": {
+		"en": "longest win",
+		"de": "längster Sieg"
+	},
+	"menu_s_longestLoss": {
+		"en": "longest loss",
+		"de": "längste Niederlage"
+	},
+	"menu_o_header": {
+		"en": "Options",
+		"de": "Einstellungen"
+	},
+	"menu_o_tweenWave": {
+		"en": "wave motion",
+		"de": "Wellenbewegung"
+	},
+	"menu_o_sound": {
+		"en": "Sound",
+		"de": "Sound"
+	},
+	"menu_o_music": {
+		"en": "Background Music",
+		"de": "Hintergrundmusik"
+	},
+	"menu_o_sfx": {
+		"en": "Sound effect",
+		"de": "Soundeffekte"
+	},
+	"menu_o_language": {
+		"en": "Choose your Language",
+		"de": "Sprachauswahl"
+	},
+	"menu_o_lang0": {
+		"value": "en",
+		"en": "English",
+		"de": "Englisch"
+	},
+	"menu_o_lang1": {
+		"value": "de",
+		"en": "German",
+		"de": "Deutsch"
+	},
+	"menu_c_header": {
+		"en": "Credits",
+		"de": "Danke"
+	},
+	"menu_c_text": {
+		"en": "This Game was created by MW.\nI hope you like it.\n\nSpecial thanks to:\n   - my wonderful wife\n   - Phaser3 (Framework)",
+		"de": "Dieses Spiel wurde von MW erstellt.\nich hoffe ihr habt Spaß daran.\n\nEin besonderer Dank gilt:\n   - meiner wundervollen Frau\n   - Phaser3 (Framework)"
+	},
+	"mm_i_header": {
+		"en": "Island Info",
+		"de": "Inselinfo"
+	},
+	"mm_i_name": {
+		"en": "Name",
+		"de": "Name"
+	},
+	"mm_i_nr": {
+		"en": "Nr.",
+		"de": "Nr."
+	},
+	"mm_i_scale": {
+		"en": "Scale",
+		"de": "Größe"
+	},
+	"mm_i_buildState": {
+		"en": "Buildstate",
+		"de": "Baustatus"
+	},
+	"mm_i_buildSpeed": {
+		"en": "Buildspeed",
+		"de": "Baugeschwindigkeit"
+	},
+	"mm_i_currBuild": {
+		"en": "currently build",
+		"de": "aktuell im Bau"
+	},
+	"mm_i_currBuildConstTime": {
+		"en": "construction time",
+		"de": "Bauzeit"
+	},
+	"mm_i_currBuildConstMax": {
+		"en": "max. constr. time",
+		"de": "Baudauer"
+	},
+	"mm_i_population": {
+		"en": "Population",
+		"de": "Bevölkerung"
+	},
+	"mm_i_populationRate": {
+		"en": "Population rate",
+		"de": "Bevölkerungsrate"
+	},
+	"mm_i_defence": {
+		"en": "Defence",
+		"de": "Abwehrstärke"
+	},
+	"mm_i_attack": {
+		"en": "Attack",
+		"de": "Angriffsstärke"
+	},
+	"mm_i_player": {
+		"en": "Occupant",
+		"de": "Besetzer"
+	},
+	"mm_i_aiLevel": {
+		"en": "AI-Level",
+		"de": "KI-Level"
+	},
+	"mm_s_header": {
+		"en": "Game Statistics",
+		"de": "Spielstatistik"
+	},
+	"mm_s_playtime": {
+		"en": "playtime",
+		"de": "Spieldauer"
+	},
+	"mm_s_islands": {
+		"en": "conquered Islands",
+		"de": "eroberte Inseln"
+	},
+	"mm_s_population": {
+		"en": "Population",
+		"de": "Gesamtbevölkerung"
+	},
+	"mm_s_buildings": {
+		"en": "Buildings",
+		"de": "Gebäudeanzahl"
+	},
+	"mm_h_header": {
+		"en": "AI Help?",
+		"de": "KI Hilfe?"
+	},
+	"mm_h_text": {
+		"en": "If you need help, let\nthe AI support you:",
+		"de": "Lass' den Computer\nfür dich spielen:"
+	},
+	"mm_h_attack": {
+		"en": "AI Attack",
+		"de": "KI Angriff"
+	},
+	"mm_h_build": {
+		"en": "AI Build",
+		"de": "KI Bau"
+	},
+	"mm_e_header": {
+		"en": "Quit Game?",
+		"de": "Aufgeben?"
+	},
+	"mm_e_text": {
+		"en": "Do you really want\nto Quit this Game?\nIt'll be rated as defeat,\nyou coward fool!",
+		"de": "Willst du das Spiel\nwirklich abbrechen?\nDas zählt als Nieder-\nlage, du Angsthase!"
+	},	
+	"meta": {
+		"editor": "MW",
+		"version": "1.1"
+	}
+}
