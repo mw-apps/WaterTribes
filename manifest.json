@@ -48,8 +48,5 @@
     "name": "MW_Apps",
     "url": "https://github.com/mw-apps/"
   },
-  "default_locale": "de",
-  "chrome": {
-    "navigation": false
-  }
+  "default_locale": "de"
 }
