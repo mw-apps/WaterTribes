@@ -1,24 +1,32 @@
 ﻿//workbox.precaching.precacheAndRoute(__precacheManifest)
 
-var cacheName = 'watertribes-sw-v1';
+var cacheName = 'watertribes-sw-v0';
 var filesToCache = [
     './index.html',
     './favicon.png',
     './manifest.json',
     './sw.js',
+    './assets/audio/sfx.json',
+    './assets/audio/sfx.mp3',
+    './assets/audio/epidemicsound_Deskant_-_Sins_of_the_Fathers.mp3',
+    './assets/icons/icon_128.png',
     './assets/icons/icon_192.png',
     './assets/icons/icon_512.png',
     './assets/spritesheets/imageAtlas.json',
     './assets/spritesheets/imageAtlas.png',
     './assets/back.png',
-    './assets/gameSettings.json',
+    './assets/gameData.json',
+    './assets/language.json',
     './css/index.css',
     './js/node_modules/phaser.min.js',
     './js/node_modules/rexgesturesplugin.min.js',
     './js/app.js',
     './js/game.js',
     './js/mainmenu.js',
-    './js/minimap.js'
+    './js/minimap.js',
+    './js/preload.js',
+    './js/sound.js'
+
 ];
 
 self.addEventListener('install', function (event) {
