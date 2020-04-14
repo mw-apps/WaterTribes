@@ -1,8 +1,6 @@
 ﻿/** @type {import("./node_modules/phaser.js")} */
 /// <reference path="node_modules/phaser.js" />
 
-
-
 class cSound extends Phaser.Scene {
     constructor() {
         super('soundScene');
@@ -15,15 +13,10 @@ class cSound extends Phaser.Scene {
     preload() {
         //load sound assets
         //background muisc
-        this.load.audio('music', [
-            './assets/audio/epidemicsound_Deskant_-_Sins_of_the_Fathers.mp3'
-        ]);
+        this.load.audio('music', ['./assets/audio/epidemicsound_Deskant_-_Sins_of_the_Fathers.mp3']);
 
         //soundeffects
-        this.load.audioSprite('sfx',
-            './assets/audio/sfx.json', [
-            './assets/audio/sfx.mp3'
-        ]);
+        this.load.audioSprite('sfx', './assets/audio/sfx.json', ['./assets/audio/sfx.mp3']);
     }
 
     create() {

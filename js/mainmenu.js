@@ -1,8 +1,6 @@
 ﻿/** @type {import("./node_modules/phaser.js")} */
 /// <reference path="node_modules/phaser.js" />
 
-
-
 class cMainMenu extends Phaser.Scene {
     constructor() {
         super("mainMenu");
@@ -16,21 +14,6 @@ class cMainMenu extends Phaser.Scene {
         this.newGameSettings = {};
         this.lang = {};
         this.settings = {};
-    }
-
-    preload() {
-        // load all game assets
-        // images, spritesheets, atlases, audio etc..
-
-        //load image atlas
-        this.load.atlas('images', 'assets/spritesheets/imageAtlas.png', 'assets/spritesheets/imageAtlas.json');
-        this.load.image('background', 'assets/background.png');
-        //load audio sprite
-        //game.load.audio('soundEffects', ['assets/spritesheets/PaperJumpAudioAtlas.ogg'], false);
-        //load techTree
-        this.load.json('gameData', 'assets/gameData.json');
-        //load language
-        this.load.json('language', 'assets/language.json');
     }
 
     create() {
@@ -47,15 +30,6 @@ class cMainMenu extends Phaser.Scene {
         this.settings = JSON.parse(localStorage.getItem("settings"));
         //start settings
         this.newGameSettings = JSON.parse(localStorage.getItem("defaultNewGame"));
-        if (this.newGameSettings == undefined) {
-            this.newGameSettings = {};
-            this.newGameSettings.tribes = [];
-            this.newGameSettings.tribes.push({ name: "you", colorNr: 0, aiLevel: 3 });
-            this.newGameSettings.tribes.push({ name: "CPU_1", colorNr: 1, aiLevel: 1 });
-            this.newGameSettings.islands = 15;
-            this.newGameSettings.sound = 0;
-            this.newGameSettings.loadGame = 0;
-        }
         //backgroundimage
         var background = this.add.sprite(-150, 0, "background");
         background.setOrigin(0);

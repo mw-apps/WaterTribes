@@ -29,7 +29,7 @@ class cGame extends Phaser.Scene {
     }
 
     preload() {
-        this.load.scenePlugin('rexgesturesplugin', 'js/node_modules/rexgesturesplugin.min.js', 'rexGestures', 'rexGestures');
+        this.load.scenePlugin('rexgesturesplugin', './node_modules/rexgesturesplugin.min.js', 'rexGestures', 'rexGestures');
     }
 
     create(data) {
