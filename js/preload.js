@@ -18,7 +18,7 @@ class cPreload extends Phaser.Scene {
         //splash screen
         this.cameras.main.setBackgroundColor('0x7bb4f2');
         this.add.sprite(this.scale.width / 2, this.scale.height / 2, "icon");
-        this.time.delayedCall(500, this.loadData(), "", this);
+        setTimeout(function () { this.loadData() }.bind(this), 200);
     }
 
     loadData() {
@@ -45,17 +45,10 @@ class cPreload extends Phaser.Scene {
         }
 
         //delay the mainMenu
-        this.time.addEvent({
-            delay: 1000,                // ms
-            callback: function () {
-                //start sound scene
-                this.scene.start("mainMenu");
-                this.scene.run("soundScene");   //run: If the given Scene is paused, it will resume it. If sleeping, it will wake it. If not running at all, it will be started.
-            },
-            args: [],
-            callbackScope: this,
-        });
-
+        setTimeout(function () {
+            //start sound scene
+            this.scene.start("mainMenu");
+            this.scene.run("soundScene");   //run: If the given Scene is paused, it will resume it. If sleeping, it will wake it. If not running at all, it will be started.
+        }.bind(this), 800);
     }
-
 }

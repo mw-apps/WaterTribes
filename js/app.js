@@ -18,8 +18,8 @@ window.onload = function () {
     // game config
     var config = {
         parent: 'content',
-        width: '100%',
-        height: '100%',
+        width: window.innerWidth,
+        height: window.innerHeight,
         backgroundColor: '#000000',
         type: Phaser.WEBGL,
         scene: [cPreload, cMainMenu, cGame, cMiniMap, cSound],

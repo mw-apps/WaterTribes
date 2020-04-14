@@ -16,18 +16,18 @@ class cSound extends Phaser.Scene {
         //load sound assets
         //background muisc
         this.load.audio('music', [
-            'assets/audio/epidemicsound_Deskant_-_Sins_of_the_Fathers.mp3'
+            './assets/audio/epidemicsound_Deskant_-_Sins_of_the_Fathers.mp3'
         ]);
 
         //soundeffects
         this.load.audioSprite('sfx',
-            'assets/audio/sfx.json', [
-            'assets/audio/sfx.mp3'
+            './assets/audio/sfx.json', [
+            './assets/audio/sfx.mp3'
         ]);
     }
 
     create() {
-        console.log("createSound");
+        //console.log("createSound");
         this.settings = JSON.parse(localStorage.getItem('settings'));
 
         //start the background music

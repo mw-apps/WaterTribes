@@ -1,4 +1,5 @@
 ﻿/// <reference path="node_modules/phaser.js" />
+/** @type {import("./node_modules/phaser.js")} */
 
 class cMiniMap extends Phaser.Scene {
     constructor() {
@@ -297,7 +298,7 @@ class cMiniMap extends Phaser.Scene {
                 break;
             case 2: //mute
                 this.mute = !this.mute;
-                game.events.emit('toSoundMsg', { type: 'mute' , mute: this.mute});
+                game.events.emit('toSoundMsg', { type: 'mute', mute: this.mute });
                 //console.log('mute', this.mute);
                 break;
             case 3: //statistics

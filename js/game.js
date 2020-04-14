@@ -8,7 +8,6 @@
  * 
 ToDo:
 * save/load Game: localStorage/json (tribes, islands, maps, ships?)
-* sound
 **/
 
 class cGame extends Phaser.Scene {
@@ -1338,7 +1337,10 @@ class Ship extends Phaser.GameObjects.Sprite {
                 aimIsland.currentBuildConstTime /= 2;
                 this.scene.tribes[this.tribe].newIsland(this.scene, this.aim);
             } else {
-                game.events.emit('toSoundMsg', { type: 'arrival' });
+                if ((aimIsland.tribe == 1 && this.tribe != 1) || (aimIsland.tribe != 1 && this.tribe == 1)) {
+                    //enemy attacks my island, or I attack enemy island (both not successful)
+                    game.events.emit('toSoundMsg', { type: 'arrival' });
+                }
             }
         }
 

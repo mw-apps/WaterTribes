@@ -119,7 +119,7 @@ class cMainMenu extends Phaser.Scene {
         switch (data.type) {
             case 'menu':
                 data.width = 500;
-                data.height = 600;
+                data.height = 530;
                 data.backTarget = "";
                 break;
             case "newGame":
@@ -200,7 +200,7 @@ class cMainMenu extends Phaser.Scene {
                 var subText;
                 var i;
                 var tX;
-                for (i = 0; i <= 5; i++) {
+                for (i = 0; i <= 4; i++) {
                     switch (i) {
                         case 0: subTypeText = "newGame"; subIcon = "anchor"; subText = this.lang.menu_newGame[this.settings.lang]; break;
                         case 1: subTypeText = "loadGame"; subIcon = "load"; subText = this.lang.menu_loadGame[this.settings.lang]; break;
