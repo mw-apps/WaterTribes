@@ -10,13 +10,23 @@ class cPreload extends Phaser.Scene {
     preload() {
         //starticon
         this.load.image('icon', './assets/icons/icon_128.png');
+
+        //load image atlas
+        this.load.atlas('images', './assets/spritesheets/imageAtlas.png', './assets/spritesheets/imageAtlas.json');
+        this.load.image('background', './assets/background.png');
+        //load techTree
+        this.load.json('gameData', './assets/gameData.json');
+        //load language
+        this.load.json('language', './assets/language.json');
+
+        //audio will be loaded in sound.js, so we can start faster (slow on mobile device)
     }
 
     create() {
         //splash screen
         this.cameras.main.setBackgroundColor('0x7bb4f2');
         this.add.sprite(this.scale.width / 2, this.scale.height / 2, 'icon');
-        setTimeout(function () { this.loadData() }.bind(this), 200);
+        setTimeout(function () { this.loadData() }.bind(this), 100);
     }
 
     loadData() {
@@ -42,19 +52,6 @@ class cPreload extends Phaser.Scene {
             newGameSettings.loadGame = 0;
             localStorage.setItem("defaultNewGame", JSON.stringify(newGameSettings));
         }
-
-        //load the rest of the data
-        //load image atlas
-        this.load.atlas('images', './assets/spritesheets/imageAtlas.png', './assets/spritesheets/imageAtlas.json');
-        this.load.image('background', './assets/background.png');
-        //load techTree
-        this.load.json('gameData', './assets/gameData.json');
-        //load language
-        this.load.json('language', './assets/language.json');
-
-        //audio will be loaded in sound.js, so we can start faster (slow on mobile device)
-
-        this.load.start();  //needed, because this.load-call outside of preload function
 
         //delay the mainMenu, to show the splash-screen
         setTimeout(function () {
