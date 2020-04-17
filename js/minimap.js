@@ -1,5 +1,5 @@
-﻿/// <reference path="node_modules/phaser.js" />
-/** @type {import("./node_modules/phaser.js")} */
+﻿/// <reference path="modules/phaser.js" />
+/** @type {import("./modules/phaser.js")} */
 
 class cMiniMap extends Phaser.Scene {
     constructor() {

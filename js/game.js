@@ -1,5 +1,5 @@
-﻿/// <reference path="node_modules/phaser.js" />
-/** @type {import("./node_modules/phaser.js")} */
+﻿/// <reference path="modules/phaser.js" />
+/** @type {import("./modules/phaser.js")} */
 
 /**
  * LINKS:
@@ -29,7 +29,7 @@ class cGame extends Phaser.Scene {
     }
 
     preload() {
-        this.load.scenePlugin('rexgesturesplugin', './node_modules/rexgesturesplugin.min.js', 'rexGestures', 'rexGestures');
+        this.load.scenePlugin('rexgesturesplugin', './modules/rexgesturesplugin.min.js', 'rexGestures', 'rexGestures');
     }
 
     create(data) {

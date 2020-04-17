@@ -1,5 +1,5 @@
-﻿/** @type {import("./node_modules/phaser.js")} */
-/// <reference path="node_modules/phaser.js" />
+﻿/** @type {import("./modules/phaser.js")} */
+/// <reference path="modules/phaser.js" />
 
 class cSound extends Phaser.Scene {
     constructor() {

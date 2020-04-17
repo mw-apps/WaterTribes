@@ -1,6 +1,6 @@
 ﻿//workbox.precaching.precacheAndRoute(__precacheManifest)
 
-var cacheName = 'watertribes-sw-v0';
+var cacheName = 'watertribes-sw-v1';
 var filesToCache = [
     './index.html',
     './favicon.png',
@@ -18,8 +18,8 @@ var filesToCache = [
     './assets/gameData.json',
     './assets/language.json',
     './css/index.css',
-    './node_modules/phaser.min.js',
-    './node_modules/rexgesturesplugin.min.js',
+    './modules/phaser.min.js',
+    './modules/rexgesturesplugin.min.js',
     './js/app.js',
     './js/game.js',
     './js/mainmenu.js',
