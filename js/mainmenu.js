@@ -1,5 +1,5 @@
-﻿/** @type {import("./modules/phaser.js")} */
-/// <reference path="modules/phaser.js" />
+﻿/** @type {import("../modules/phaser.js")} */
+/// <reference path="../modules/phaser.js" />
 
 class cMainMenu extends Phaser.Scene {
     constructor() {
@@ -42,6 +42,7 @@ class cMainMenu extends Phaser.Scene {
         this.infoContainer.colorpickerNewGroup = this.add.group();
         this.plate = this.add.graphics();
         this.infoContainer.add(this.plate);
+        this.removeInfoPlate();
         setTimeout(function () { this.setInfoPlate({ type: "menu" }); }.bind(this), 200);
         //PWA support
         if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
@@ -92,35 +93,50 @@ class cMainMenu extends Phaser.Scene {
         //set the width and height
         switch (data.type) {
             case 'menu':
-                data.width = 500;
-                data.height = 530;
+                data.width = 600;
+                data.height = 630;
                 data.backTarget = "";
                 break;
             case "newGame":
-                data.width = 700;
+                data.width = 800;
                 data.height = 800;
                 data.backTarget = "menu";
                 break;
             case "options":
-                data.width = 600;
+                data.width = 700;
                 data.height = 670;
                 data.backTarget = "menu";
                 break;
             case 'statistics':
-                data.width = 700;
+                data.width = 800;
                 data.height = 670;
                 data.backTarget = "menu";
                 break;
             case 'credits':
-                data.width = 700;
+                data.width = 800;
                 data.height = 370;
                 data.backTarget = "menu";
                 break;
+            case 'instruction':
+                data.width = 1000;
+                data.height = 900;
+                data.backTarget = "menu";
+                break;
             default:
+                console.log("setInfoPlate error size")
         }
-        var x = this.scale.width + 100;  //startposition outside of the screen
+        var x = this.scale.width + 200;  //startposition outside of the screen
         var y = this.scale.height / 2 - data.height / 2 - 20;   //in the middle of the y-axis
-
+        if (this.infoContainer.visible == true) {        //ToDo
+            //infoPlate is visible, so there is no tween necessary
+            x -= data.width;
+            this.removeInfoPlate();
+            this.infoContainer.visible = true; //set back to visible, because in "removeInfoPlate" it is set to false
+        } else {
+            this.removeInfoPlate();
+            //this.infoContainer.x = 0;
+            //this.plate.x = 0;
+        }
         this.plate.visible = true;
         this.plate.active = true;
         //Background
@@ -135,21 +151,16 @@ class cMainMenu extends Phaser.Scene {
         this.plate.fillStyle('0x7bb4f2', 1);
         this.plate.fillRoundedRect(x + 40, y + 60, data.width, 8, 4);
         //back button
-        var button = this.newSprite(x, y + data.height / 2 - 50, "plateBack", 0, "images", "back", 0.1);
-        if (this.mobile == true) { button.scale = 1.7; } else { button.scale = 1.2 }
-        button.on('pointerup', function (button, data) {
-            this.tweenInfoPlate(-data.width, 700);
-            this.time.addEvent({
-                delay: 700, callback: function () {
-                    this.removeInfoPlate();
-                    this.setInfoPlate({ type: data.backTarget });
-                }, callbackScope: this
-            });
-        }.bind(this, button, data));
+        var backButton = this.newSprite(x, y + data.height / 2 - 50, "plateBack", 0, "images", "back", 0.1);
+        if (this.mobile == true) { backButton.scale = 1.7; } else { backButton.scale = 1.2 }
+        backButton.on('pointerup', function (data) {
+            if (backButton.tween != undefined) { backButton.tween.stop(); }
+            this.tweenInfoPlate(-data.width, 700, { type: data.backTarget });
+        }.bind(this, data));
         if (data.backTarget == "") {     //load backbutton and hide it, otherwise the backbutton would be too wide
-            button.visible = false;     //i guess because the texture before is 1x1 (lxb)
+            backButton.visible = false;     //i guess because the texture before is 1x1 (lxb)
         } else {
-            button.visible = true;
+            backButton.visible = true;
         }
 
         //Header
@@ -159,6 +170,7 @@ class cMainMenu extends Phaser.Scene {
             case "options": var tHeader = this.lang.menu_o_header[this.settings.lang]; break;
             case 'statistics': var tHeader = this.lang.menu_s_header[this.settings.lang]; break;
             case 'credits': var tHeader = this.lang.menu_c_header[this.settings.lang]; break;
+            case 'instruction': var tHeader = this.lang.menu_i_header[this.settings.lang]; break;
             case 'loadGame': var tHeader = ""; break;
             default: console.log("setInfoPlate data.type error", data.type);
         }
@@ -174,29 +186,24 @@ class cMainMenu extends Phaser.Scene {
                 var subText;
                 var i;
                 var tX;
-                for (i = 0; i <= 4; i++) {
+                for (i = 0; i <= 5; i++) {
                     switch (i) {
                         case 0: subTypeText = "newGame"; subIcon = "anchor"; subText = this.lang.menu_newGame[this.settings.lang]; break;
                         case 1: subTypeText = "loadGame"; subIcon = "load"; subText = this.lang.menu_loadGame[this.settings.lang]; break;
                         case 2: subTypeText = "options"; subIcon = "options"; subText = this.lang.menu_options[this.settings.lang]; break;
                         case 3: subTypeText = "statistics"; subIcon = "medal"; subText = this.lang.menu_statistics[this.settings.lang]; break;
-                        case 4: subTypeText = "credits"; subIcon = "credits"; subText = this.lang.menu_credits[this.settings.lang]; break;
+                        case 4: subTypeText = "instruction"; subIcon = "instruction"; subText = this.lang.menu_instruction[this.settings.lang]; break;
+                        case 5: subTypeText = "credits"; subIcon = "credits"; subText = this.lang.menu_credits[this.settings.lang]; break;
                     }
                     if (i % 2) { tX = 75 } else { tX = -75 }
-                    var button = this.newSprite(x + 50 + (data.width - 200) / 2 - tX, y + 130 + i * 80, "button", i, "images", subIcon, 0.5);
+                    var button = this.newSprite(x + 50 + (data.width - 300) / 2 - tX, y + 130 + i * 80, "button", i, "images", subIcon, 0.5);
                     button.scale = 0.7;
-                    button.on('pointerup', function (button, data, subTypeText) {
-                        this.tweenInfoPlate(-data.width, 700);
-                        this.time.addEvent({
-                            delay: 700, callback: function () {
-                                this.removeInfoPlate();
-                                this.setInfoPlate({ type: subTypeText });
-                            }, callbackScope: this
-                        });
-                    }.bind(this, button, data, subTypeText));
+                    button.on('pointerup', function (data, subTypeText) {
+                        this.tweenInfoPlate(-data.width, 700, { type: subTypeText });
+                    }.bind(this, data, subTypeText));
                     //ButtonText
                     if (this.mobile == true) { var tFont = { font: 'bold 40px Arial', fill: "black" } } else { var tFont = { font: 'bold 30px Arial', fill: "black" } }
-                    this.newText(x + 50 + (data.width - 200) / 2 + tX, y + 130 + i * 80, subText, tFont, 0.5);
+                    this.newText(x + 50 + (data.width - 300) / 2 + tX, y + 130 + i * 80, subText, tFont, 0.5);
                 }
                 break;
             case 'newGame':
@@ -355,26 +362,6 @@ class cMainMenu extends Phaser.Scene {
             case 'statistics':
                 //Text
                 var saveObject = JSON.parse(localStorage.getItem("stats"));
-
-                if (saveObject == undefined) {
-                    var saveObject = {
-                        gamesTotal: 0,
-                        enemiesTotal: 0,
-                        timeTotal: 0,
-                        win: 0,
-                        loss: 0,
-                        enemiesWonTotal: 0,
-                        enemiesLostTotal: 0,
-                        actualStreak: 0,
-                        longestWinStreak: 0,
-                        longestLossStreak: 0,
-                        fastestWin: 0,
-                        fastestLoss: 0,
-                        longestWin: 0,
-                        longestLoss: 0
-                    };
-                    localStorage.setItem("stats", JSON.stringify(saveObject));
-                }
                 var gInfo =
                     this.lang.menu_s_gamesTotal[this.settings.lang] + ": " + saveObject.gamesTotal + "\n" +
                     this.lang.menu_s_enemiesTotal[this.settings.lang] + ": " + saveObject.enemiesTotal + "\n" +
@@ -397,7 +384,7 @@ class cMainMenu extends Phaser.Scene {
             case 'options':
                 if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
                 //tweenWaveMotion
-                var button = this.newSprite(x + 100, y + 120, "options", 0, "images", 'wave', 0.5);
+                var button = this.newSprite(x + 100, y + 120, "options", 0, "images", 'waveMotion', 0.5);
                 if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
                     this.scene.settings.waveMotion = !this.scene.settings.waveMotion;
@@ -486,18 +473,314 @@ class cMainMenu extends Phaser.Scene {
                 if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
                 this.newText(x + 60, y + 90, this.lang.menu_c_text[this.settings.lang], tFont, 0);
                 break;
+            case 'instruction':
+                if (data.bubbleId >= 0) {
+                    var stepX = 0; //increment at end of for-loop
+                    var stepY = 100;
+                    var row = -1;
+                    var maxPerRow = 6;
+                    for (var i = 0; i < this.gameData.buildingsMax; i++) {
+                        if (i % maxPerRow == 0) {
+                            row++;
+                            stepX = 0;
+                            if (this.gameData.buildingsMax - row * maxPerRow < maxPerRow) { stepX = 110 * (maxPerRow - (this.gameData.buildingsMax % maxPerRow)) / 2 }
+                            //console.log(i, row, stepX);
+                        }
+                        var button = this.newSprite(x + 90 + stepX, y + 120 + row * stepY, "techBubble", i, "images", this.gameData.techObjects[i].textureName, 0.5);
+                        if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+                        button.on('pointerup', function () {
+                            this.scene.setInfoPlate({ type: "instruction", bubbleId: this.nr });
+                        });
+                        stepX += 110;
+                    }
+                    var button = this.newSprite(x + 60, button.y + 90, "bubbles", 0, "images", this.gameData.techObjects[data.bubbleId].textureName, 0);
+                    //header
+                    if (this.mobile == true) { var tFont = { font: 'bold 45px Arial', fill: "black" } } else { var tFont = { font: 'bold 35px Arial', fill: "black" } };
+                    var iText = this.newText(button.x + button.width + 20, button.y, this.lang.techobj_id[data.bubbleId].name[this.settings.lang], tFont, 0);
+                    //separator
+                    this.plate.fillStyle('0x7bb4f2', 1);
+                    this.plate.fillRoundedRect(iText.x, iText.y + iText.height, data.width, 6, 2);
+                    //text
+                    var gInfo = this.lang.techobj_id[data.bubbleId].description[this.settings.lang] + "\n\n" +
+                        this.lang.techobj_expectation[this.settings.lang] + ": "
+                    var expectation = parseInt(this.gameData.techObjects[data.bubbleId].expectation, 2);
+                    var expNames = "";
+                    for (var i = 0; i < this.gameData.buildingsMax; i++) {
+                        if (expectation & parseInt(this.gameData.techObjects[i].binary, 2)) {
+                            if (expNames.length > 0) { expNames = expNames + ", " }
+                            expNames = expNames + this.lang.techobj_id[i].name[this.settings.lang]
+                        }
+                    }
+                    gInfo = gInfo + expNames + "\n" +
+                        this.lang.techobj_constDuration[this.settings.lang] + ": " + this.gameData.techObjects[data.bubbleId].constDuration + "\n" +
+                        this.lang.techobj_addBuildSpeed[this.settings.lang] + ": +" + this.gameData.techObjects[data.bubbleId].addBuildSpeed + "\n" +
+                        this.lang.techobj_addPopGrowth[this.settings.lang] + ": +" + this.gameData.techObjects[data.bubbleId].addPopGrowth + "\n" +
+                        this.lang.techobj_addDefence[this.settings.lang] + ": +" + this.gameData.techObjects[data.bubbleId].addDefence + "\n" +
+                        this.lang.techobj_addAttack[this.settings.lang] + ": +" + this.gameData.techObjects[data.bubbleId].addAttack
+                    if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black", wordWrap: { width: this.scale.width - iText.x - 50 } } } else { var tFont = { font: 'bold 28px Arial', fill: "black", wordWrap: { width: this.scale.width - iText.x - 50 } } };
+                    var iText = this.newText(iText.x, iText.y + iText.height + 30, gInfo, tFont, 0);
+                    break;
+                }
+                //Text
+                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black", wordWrap: { width: data.width - 300 } } } else { var tFont = { font: 'bold 28px Arial', fill: "black", wordWrap: { width: data.width - 300 } } };
+                var iText = this.newText(x + 60, y + 90, this.lang.menu_i_text[this.settings.lang], tFont, 0);
+                //water
+                this.plate.fillStyle('0x0988fc', 1);
+                this.plate.fillRect(iText.x, iText.y + iText.height + 30, iText.width, y + data.height - (iText.y + iText.height + 30) - 80);
+                //start animation
+                var tween = this.instructionAnimation({ type: 'init', x: iText.x, y: iText.y + iText.height + 30, right: iText.x + iText.width, bottom: y + data.height - 80 });
+                backButton.tween = tween;
+                //next
+                var button = this.newSprite(iText.x + iText.width / 2, y + data.height - 40, "next", 6, "images", 'next', 0.5);
+                button.tween = tween;
+                if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+                button.on('pointerup', function () {
+                    if (button.tween != undefined) { console.log("tween_stop"); button.tween.stop(); }
+                    this.setInfoPlate({ type: "instruction", bubbleId: 0 });
+                }.bind(this));
+                break;
             case 'loadGame':
                 this.removeInfoPlate();
                 this.setInfoPlate({ type: "menu" });
                 return;
                 break;
             default:
-                console.log("switch_error", data);
+                console.log("infoPlate switch_error", data);
         }
         //when everything is created, add a smooth tween to show the data
-        this.tweenInfoPlate(data.width, 1000);
+        if (this.infoContainer.visible != true) {
+            //move the infoPlate into the screen
+            this.tweenInfoPlate(data.width, 1000);
+            this.infoContainer.visible = true;
+        }
     }
 
+    instructionAnimation(data) {
+        switch (data.type) {
+            case 'init':
+                //island1
+                var i1 = this.newSprite(data.x + 120, data.y + 120, "island", 1, "images", 'island0', 0.5);
+                i1.scale = 0.6;
+                i1.angle = 30;
+                var f1 = this.newSprite(i1.x + 50, i1.y, "island", 1, "images", 'flag', 1);
+                f1.scale = 0.6;
+                f1.setTint(this.gameData.tribeColors[0].replace("#", "0x"));
+                //island2
+                var i2 = this.newSprite(data.right - 120, data.bottom - 120, "island", 2, "images", 'island4', 0.5);
+                i2.scale = 0.6;
+                i2.angle = 50;
+                var f2 = this.newSprite(i2.x + 50, i2.y, "island", 1, "images", 'flag', 1);
+                f2.scale = 0.6;
+                //bubbles
+                var buildBubble = this.newSprite(i1.x + i1.displayWidth / 2 + 15, i1.y + i1.displayHeight / 2 - 2, "bubbles", 1, "images", 'bubbleBuild', 0.5);
+                buildBubble.scale = 0.4;
+                buildBubble.visible = false;
+                var buildShipBubble = this.newSprite(i1.x + i1.displayWidth / 2 + 15, i1.y + i1.displayHeight / 2, "bubbles", 2, "images", 'buildShipSiege', 0.5);
+                buildShipBubble.scale = 0.4;
+                buildShipBubble.alpha = 0.8;
+                var ship = this.newSprite(i1.x - i1.displayWidth / 2 + 25, i1.y + i1.displayHeight / 2, "bubbles", 3, "images", 'portShipSiege', 0.5);
+                ship.scale = 0.5;
+                ship.rotation = -1.3;
+                ship.scale = 0.4;
+                ship.visible = false;
+                var attackBubble = this.newSprite(i1.x - i1.displayWidth / 2 - 20, i1.y + i1.displayHeight / 2, "bubbles", 4, "images", 'steeringWheel', 0.5);
+                attackBubble.scale = 0.4;
+                attackBubble.alpha = 0.8;
+                attackBubble.visible = false;
+                var outpost = this.newSprite(i2.x, i2.y - i2.displayHeight / 2 - 40, "bubbles", 5, "images", 'outpost', 0.5);
+                outpost.scale = 0.4;
+                outpost.alpha = 0.8;
+                outpost.visible = false;
+                //mouse
+                var pointer = this.newSprite(data.right - 50, data.y + 50, "bubbles", 5, "images", 'steeringWheel', 0.5);   //bugfix: if directly mouse-image the size will be wrong on the next page (portShipSiege)
+                pointer.setTexture("images", "mouse");
+                //waypoints
+                var iLine = new Phaser.Geom.Line();
+                iLine.x1 = ship.x - ship.displayWidth / 2;
+                iLine.y1 = ship.y + 15;
+                iLine.x2 = i2.x;
+                iLine.y2 = i2.y;
+                var iLine = Phaser.Geom.Line.SetToAngle(iLine, iLine.x1, iLine.y1, Phaser.Geom.Line.Angle(iLine), Phaser.Geom.Line.Length(iLine) - (i2.displayWidth + i2.displayHeight) / 4);
+
+                //animation timeline
+                var timeline = this.tweens.createTimeline();
+                var scene = this;
+                //mouse to buildShip bubble
+                timeline.add({
+                    targets: pointer,
+                    x: buildShipBubble.x + 10,
+                    y: buildShipBubble.y + 20,
+                    ease: 'Sine.easeInOut',
+                    delay: 500,
+                    duration: 2000,
+                    onComplete: function () {
+                        pointer.setTexture("images", "mouseClick");
+                        scene.time.delayedCall(500, function () {
+                            pointer.setTexture("images", "mouse")
+                        }, [], scene);
+                    }
+                });
+                //build ship
+                timeline.add({
+                    targets: pointer,
+                    temp: { from: 0, to: 100 },
+                    ease: 'Sine.easeInOut',
+                    duration: 500,
+                    onComplete: function () {
+                        buildBubble.cropValue = 0;
+                        buildBubble.setCrop(0, (buildBubble.frame.height) - buildBubble.cropValue, buildBubble.frame.width, buildBubble.cropValue);
+                        buildBubble.visible = true;
+                    }
+                });
+                timeline.add({  //move pointer off the bubble for visualisation
+                    targets: pointer,
+                    x: buildShipBubble.x + 30,
+                    y: buildShipBubble.y + 40,
+                    delay: 250,
+                    ease: 'Sine.easeInOut',
+                    duration: 500
+                });
+                timeline.add({
+                    targets: buildBubble,
+                    cropValue: { from: 0, to: buildBubble.frame.height },
+                    ease: 'linear',
+                    offset: '-=500',   // starts 500ms before previous tween ends
+                    duration: 3000,
+                    onUpdate: function () {
+                        buildBubble.setCrop(0, (buildBubble.frame.height) - buildBubble.cropValue, buildBubble.frame.width, buildBubble.cropValue);
+                    },
+                    onComplete: function () {
+                        buildBubble.visible = false;
+                        buildShipBubble.visible = false;
+                        buildBubble.setCrop(0, 0, buildBubble.frame.width, buildBubble.frame.height);
+                        attackBubble.alpha = 0;
+                        attackBubble.visible = true;
+                        ship.alpha = 0;
+                        ship.visible = true;
+                        ship.setTexture("images", "portShipSiege");
+                    }
+                });
+                
+                //show ship
+                timeline.add({
+                    targets: [attackBubble, ship],
+                    alpha: { from: 0, to: 0.8 },
+                    ease: 'linar',
+                    duration: 800,
+                    onComplete: function () {
+                        ship.alpha = 1;
+                    }
+                });
+                //mouse to attack
+                timeline.add({
+                    targets: pointer,
+                    x: attackBubble.x + 10,
+                    y: attackBubble.y + 20,
+                    ease: 'Sine.easeInOut',
+                    delay: 500,
+                    duration: 2000,
+                    onComplete: function () {
+                        pointer.setTexture("images", "mouseClick");
+                        attackBubble.setTintFill('0xf7c184');
+                        scene.time.delayedCall(500, function () {
+                            pointer.setTexture("images", "mouse")
+                        }, [], scene);
+                    }
+                });
+                //mouse to island
+                timeline.add({
+                    targets: pointer,
+                    x: i2.x + 20,
+                    y: i2.y + 30,
+                    ease: 'Sine.easeInOut',
+                    delay: 1000,
+                    duration: 2000,
+                    onComplete: function () {
+                        pointer.setTexture("images", "mouseClick");
+                        attackBubble.clearTint();
+                        scene.time.delayedCall(500, function () {
+                            pointer.setTexture("images", "mouse")
+                        }, [], scene);
+                        buildShipBubble.visible = true;
+                        attackBubble.visible = false;
+                    }
+                });
+                //rotate ship to start position
+                timeline.add({
+                    targets: ship,
+                    x: iLine.x1,
+                    y: iLine.y1,
+                    rotation: Math.atan2(iLine.y2 - iLine.y1, iLine.x2 - iLine.x1) + 0.5 * Math.PI,
+                    duration: 1000,
+                    ease: 'Sine.easeOut',
+                    onComplete: function () {
+                        ship.setTexture("images", "shipSiege");
+                    }
+                });
+                //set sails
+                timeline.add({
+                    targets: ship,
+                    x: iLine.x2,
+                    y: iLine.y2,
+                    duration: 3000,
+                    ease: 'linear',
+                    onComplete: function () {
+                        ship.visible = false;
+                        f2.setTint(scene.gameData.tribeColors[0].replace("#", "0x"));
+                        outpost.alpha = 0;
+                        outpost.visible = true;
+                    }
+                });
+                //show outpost
+                timeline.add({
+                    targets: outpost,
+                    alpha: { from: 0, to: 0.8 },
+                    ease: 'linar',
+                    duration: 800,
+                    onComplete: function () {
+                        scene.time.delayedCall(500, function () {
+                            pointer.setTexture("images", "mouse")
+                        }, [], scene);
+                    }
+                });
+                //back to start position
+                timeline.add({
+                    targets: pointer,
+                    alpha: { from: 1, to: 0 },
+                    ease: 'linar',
+                    delay: 500,
+                    duration: 1500,
+                    completeDelay: 2000,
+                    onComplete: function () {
+                        //set everyting back to start
+                        f2.clearTint();
+                        //bubbles
+                        buildBubble.alpha = 1;
+                        buildBubble.visible = false;
+                        buildBubble.alpha = 0.8;
+                        buildShipBubble.visible = true;
+                        ship.x = i1.x - i1.displayWidth / 2 + 25;
+                        ship.y = i1.y + i1.displayHeight / 2;
+                        ship.rotation = -1.3;
+                        ship.visible = false;
+                        attackBubble.alpha = 0.8;
+                        attackBubble.visible = false;
+                        outpost.alpha = 0.8;
+                        outpost.visible = false;
+                        pointer.x = data.right - 50,
+                        pointer.y = data.y + 50
+                        pointer.alpha = 1;                    
+                    }
+                });
+                timeline.loopDelay = 2000;
+                timeline.loop = -1;
+                timeline.play();
+                return timeline;
+                break;
+            default:
+                console.log("instructionAnimation_error", data);
+        }
+    }
     newGameAddPlayer(x, y, index, step) {
         //Playername
         if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } }
@@ -590,6 +873,8 @@ class cMainMenu extends Phaser.Scene {
             case "colorpickerNew":
             case "options":
             case "optionsLanguage":
+            case "island":
+            case "bubbles":
                 break; //cancel
             case "plateBack":
                 button.on('pointerover', function () { this.setTint("0xaaaaaa"); }) //grey
@@ -609,17 +894,21 @@ class cMainMenu extends Phaser.Scene {
             if (this.infoContainer.list[i].type == "Text") {
                 this.textGroup.killAndHide(this.infoContainer.list[i]);
             } else if (this.infoContainer.list[i].type == "Sprite") {
-                this.spriteGroup.killAndHide(this.infoContainer.list[i]);
                 this.infoContainer.list[i].clearTint();
                 this.infoContainer.list[i].scale = 1;
                 this.infoContainer.list[i].alpha = 1;
+                this.infoContainer.list[i].angle = 0;
+                this.infoContainer.list[i].isCropped = false;
+                this.spriteGroup.killAndHide(this.infoContainer.list[i]);
             }
         };
+        this.infoContainer.x = 0;
+        this.infoContainer.visible = false;
         this.plate.clear();
         this.plate.x = 0;
     }
 
-    tweenInfoPlate(x, duration) {
+    tweenInfoPlate(x, duration, data) {
         if (duration === undefined) { duration = 1000 }
         this.tweens.add({
             targets: this.infoContainer,
@@ -627,7 +916,14 @@ class cMainMenu extends Phaser.Scene {
             ease: 'Back',       // 'Cubic', 'Elastic', 'Bounce', 'Back', 'Sine.easeInOut'
             duration: duration,
             repeat: 0,            // -1: infinity
-            yoyo: false
+            yoyo: false,
+            onComplete: function () {
+                if (x < 0) {
+                    this.scene.removeInfoPlate();
+                    this.scene.setInfoPlate(data);
+                }
+            },
+            onCompleteScope: this.scene
         });
     }
 }

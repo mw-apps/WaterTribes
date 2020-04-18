@@ -2,6 +2,7 @@
 	"tribeMax": 6,
 	"aiLevelMax": 3,
 	"islandsMax": 30,
+	"buildingsMax": 11,
 	"defaultAiProbability": 100,
 	"tribeColors": [
 		"0x0057e7",
@@ -81,7 +82,7 @@
 			"aiProbability": 120,
 			"addBuildSpeed": 5,
 			"addPopGrowth": 0.001,
-			"addDefence": 0,
+			"addDefence": 0.05,
 			"addAttack": 0
 		},
 		{
@@ -137,7 +138,7 @@
 			"aiProbability": 60,
 			"addBuildSpeed": 3,
 			"addPopGrowth": 0,
-			"addDefence": 0.025,
+			"addDefence": 0.05,
 			"addAttack": 0.1
 		},
 		{

@@ -1,5 +1,5 @@
-﻿/** @type {import("./modules/phaser.js")} */
-/// <reference path="modules/phaser.js" />
+﻿/** @type {import("../modules/phaser.js")} */
+/// <reference path="../modules/phaser.js" />
 
 class cSound extends Phaser.Scene {
     constructor() {
@@ -82,7 +82,7 @@ class cSound extends Phaser.Scene {
                 this.sfx.play('drum');
                 break;
             case 'endGame':
-                if (this.music.mute == false) {
+                if (this.settings.music == false) {
                     this.music.orgVolume = this.music.volume;
                     this.tweens.add({        //fadeout the background music
                         targets: this.music,
@@ -91,11 +91,11 @@ class cSound extends Phaser.Scene {
                     });
                 }
                 //this.sfx.play('final');
-                if (this.sfx.mute == false) {
+                if (this.settings.sfx == false) {
                     var finalSound = this.sound.addAudioSprite('sfx');  //this way the final song will not be stopped
                     finalSound.play('final');
                     finalSound.once('complete', function () {
-                        if (this.music.mute == false) {
+                        if (this.settings.music == false) {
                             this.music.volume = this.music.orgVolume;
                             this.music.play();
                         }

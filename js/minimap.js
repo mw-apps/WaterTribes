@@ -1,5 +1,5 @@
-﻿/// <reference path="modules/phaser.js" />
-/** @type {import("./modules/phaser.js")} */
+﻿/// <reference path="../modules/phaser.js" />
+/** @type {import("../modules/phaser.js")} */
 
 class cMiniMap extends Phaser.Scene {
     constructor() {
@@ -232,31 +232,13 @@ class cMiniMap extends Phaser.Scene {
         }
 
         var saveObject = JSON.parse(localStorage.getItem("stats"));
-        if (saveObject == undefined) {
-            var saveObject = {
-                gamesTotal: 0,
-                enemysTotal: 0,
-                timeTotal: 0,
-                win: 0,
-                loss: 0,
-                enemysWonTotal: 0,
-                enemysLostTotal: 0,
-                actualStreak: 0,
-                longestWinStreak: 0,
-                longestLossStreak: 0,
-                fastestWin: 0,
-                fastestLoss: 0,
-                longestWin: 0,
-                longestLoss: 0
-            };
-        }
         var diffTime = (this.gameScene.statistics[this.gameScene.statistics.length - 1].time - this.gameScene.statistics[0].time);
         saveObject.gamesTotal++;
-        saveObject.enemysTotal += this.gameScene.tribes.length - 2;
+        saveObject.enemiesTotal += this.gameScene.tribes.length - 2;
         saveObject.timeTotal += diffTime;
         if (type == "win") {
             saveObject.win += 1;
-            saveObject.enemysWonTotal += this.gameScene.tribes.length - 2;
+            saveObject.enemiesWonTotal += this.gameScene.tribes.length - 2;
             if (saveObject.actualStreak > 0) {
                 saveObject.actualStreak++;
             } else {
@@ -269,7 +251,7 @@ class cMiniMap extends Phaser.Scene {
             if (saveObject.longestWin < diffTime) { saveObject.longestWin = diffTime; }
         } else {
             saveObject.loss += 1;
-            saveObject.enemysLostTotal += this.gameScene.tribes.length - 2;
+            saveObject.enemiesLostTotal += this.gameScene.tribes.length - 2;
             if (saveObject.actualStreak < 0) {
                 saveObject.actualStreak--;
             } else {

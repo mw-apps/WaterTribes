@@ -1,5 +1,5 @@
-﻿/** @type {import("./modules/phaser.js")} */
-/// <reference path="modules/phaser.js" />
+﻿/** @type {import("../modules/phaser.js")} */
+/// <reference path="../modules/phaser.js" />
 
 class cPreload extends Phaser.Scene {
     constructor() {
@@ -14,6 +14,7 @@ class cPreload extends Phaser.Scene {
         //load image atlas
         this.load.atlas('images', './assets/spritesheets/imageAtlas.png', './assets/spritesheets/imageAtlas.json');
         this.load.image('background', './assets/background.png');
+        this.load.image('instruction', './assets/instruction.png');
         //load techTree
         this.load.json('gameData', './assets/gameData.json');
         //load language
@@ -53,6 +54,27 @@ class cPreload extends Phaser.Scene {
             localStorage.setItem("defaultNewGame", JSON.stringify(newGameSettings));
         }
 
+        var saveObject = JSON.parse(localStorage.getItem("stats"));
+        if (saveObject == undefined) {
+            saveObject = {
+                gamesTotal: 0,
+                enemiesTotal: 0,
+                timeTotal: 0,
+                win: 0,
+                loss: 0,
+                enemiesWonTotal: 0,
+                enemiesLostTotal: 0,
+                actualStreak: 0,
+                longestWinStreak: 0,
+                longestLossStreak: 0,
+                fastestWin: 0,
+                fastestLoss: 0,
+                longestWin: 0,
+                longestLoss: 0
+            };
+            localStorage.setItem("stats", JSON.stringify(saveObject));
+        }
+        
         //delay the mainMenu, to show the splash-screen
         setTimeout(function () {
             this.scene.run("soundScene");   //run: If the given Scene is paused, it will resume it. If sleeping, it will wake it. If not running at all, it will be started.

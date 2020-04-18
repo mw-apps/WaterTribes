@@ -1,5 +1,5 @@
-﻿/// <reference path="modules/phaser.js" />
-/** @type {import("./modules/phaser.js")} */
+﻿/// <reference path="../modules/phaser.js" />
+/** @type {import("../modules/phaser.js")} */
 
 /**
  * LINKS:
@@ -205,7 +205,7 @@ class cGame extends Phaser.Scene {
                 }
             }
 
-            if (this.updateTimer >= 150) {
+            if (this.updateTimer >= 120) {
                 var i;
 
                 //islands

@@ -23,6 +23,10 @@
 		"en": "Statistics",
 		"de": "Statistik"
 	},
+	"menu_instruction": {
+		"en": "Instruction",
+		"de": "Anleitung"
+	},
 	"menu_credits": {
 		"en": "Credits",
 		"de": "Credits"
@@ -161,6 +165,46 @@
 		"en": "This Game was created by MW.\nI hope you like it.\n\nSpecial thanks to:\n   - my wonderful wife\n   - Phaser3 (Framework)",
 		"de": "Dieses Spiel wurde von MW erstellt.\nich hoffe ihr habt Spaß daran.\n\nEin besonderer Dank gilt:\n   - meiner wundervollen Frau\n   - Phaser3 (Framework)"
 	},
+	"menu_i_header": {
+		"en": "Instruction",
+		"de": "Anleitung"
+	},
+	"menu_i_text": {
+		"en": "The goal of the game is to defeat all opponents by conquering their islands. Therefor you build a ship and send it with half of the island crew to the target island. You can upgrade your islands to improve the building speed, population growth, attack and defense strength.",
+		"de": "Das Ziel des Spiels ist alle Gegner zu besiegen, indem man deren Inseln erobert. Dafür baut man Schiffe und schickt sie mit der Hälfte der Inselbesatzung zum Ziel. Man kann seine Inseln ausbauen, um die Geschwindigkeit, Wachstum, Angriffs- und Abwehrstärke zu verbessern."
+	},
+	"menu_i_name": {
+		"en": "Name",
+		"de": "Name"
+	},
+	"menu_i_expectation": {
+		"en": "Expectation",
+		"de": "Voraussetzung"
+	},
+	"menu_i_duration": {
+		"en": "duration",
+		"de": "Baudauer"
+	},
+	"menu_i_purpose": {
+		"en": "Purpose",
+		"de": "Nutzen"
+	},
+	"menu_i_buildSpeed": {
+		"en": "Build speed",
+		"de": "Baugeschwindigkeit"
+	},
+	"menu_i_popGrowth": {
+		"en": "Population growth",
+		"de": "Populationswachstum"
+	},
+	"menu_i_attack": {
+		"en": "Attack",
+		"de": "Angriffsstärke"
+	},
+	"menu_i_defence": {
+		"en": "Defence",
+		"de": "Verteidigungstärke"
+	},
 	"mm_i_header": {
 		"en": "Island Info",
 		"de": "Inselinfo"
@@ -264,7 +308,143 @@
 	"mm_e_text": {
 		"en": "Do you really want\nto Quit this Game?\nIt'll be rated as defeat,\nyou coward fool!",
 		"de": "Willst du das Spiel\nwirklich abbrechen?\nDas zählt als Nieder-\nlage, du Angsthase!"
-	},	
+	},
+	"techobj_id": [
+		{
+			"name": {
+				"en": "Outpost",
+				"de": "Außenposten"
+			},
+			"description": {
+				"en": "First temporary accommodation on the island. Offers rudimentary protection against weather and attacks.",
+				"de": "Erste provisorische Behausung auf der Insel. Bietet rudimentären Schutz vor Wetter und Angriffen."
+			}
+		},
+		{
+			"name": {
+				"en": "Tools",
+				"de": "Werkzeug"
+			},
+			"description": {
+				"en": "With hammer and saw it builds much faster. In an emergency the hammer becomes a weapon!",
+				"de": "Mit Hammer und Säge baut es sich wesentlich schneller. In der Not wird der Hammer zur Waffe!"
+			}
+		},
+		{
+			"name": {
+				"en": "Food",
+				"de": "Nahrung"
+			},
+			"description": {
+				"en": "You won't get far without adequate rations.",
+				"de": "Ohne ausreichende Verpflegung kommt man nicht weit."
+			}
+		},
+		{
+			"name": {
+				"en": "Wood Wall",
+				"de": "Holzwall"
+			},
+			"description": {
+				"en": "First comprehensive palisade for defence. Keeps enemies from overrunning your island for a short time.",
+				"de": "Erste umfassende Palisade zur Verteidigung. Hält Gegner kurzzeitig davon ab deine Insel zu überrennen."
+			}
+		},
+		{
+			"name": {
+				"en": "Shipyard",
+				"de": "Werft"
+			},
+			"description": {
+				"en": "With the shipyard you can build simple ships.",
+				"de": "Mit der Werft kannst du einfache Schiffe bauen."
+			}
+		},
+		{
+			"name": {
+				"en": "Weapons",
+				"de": "Waffenschmide"
+			},
+			"description": {
+				"en": "Real tempered steel weapons, teach your enemies to fear.",
+				"de": "Echte Waffen aus gehärtetem Stahl, lehre deine Feinde das Fürchten."
+			}
+		},
+		{
+			"name": {
+				"en": "Storage",
+				"de": "Lagerhaltung"
+			},
+			"description": {
+				"en": "With this you can hibernate for a long time and undertake long journeys. Your population is growing rapidly.",
+				"de": "Hiermit kannst du lange überwintern und große Reisen unternehmen. Deine Befölkerung wächst rasant."
+			}
+		},
+		{
+			"name": {
+				"en": "Stone Wall",
+				"de": "Steinmauer"
+			},
+			"description": {
+				"en": "A solid stone wall around your island makes it difficult for enemies to land and attack.",
+				"de": "Eine feste Steinmauer um deine Insel erschwert es Feinden anzulanden und anzugreifen."
+			}
+		},
+		{
+			"name": {
+				"en": "War Doctrine",
+				"de": "Kriegsrat"
+			},
+			"description": {
+				"en": "War tactics and different attack / defense strategies - usually there is a more effective way besides the frontal attack.",
+				"de": "Kriegstaktik und verschiedene Angriffs- / Abwehrstrategien - meistens gibt es neben dem Frontalangriff einen effektiveren Weg."
+			}
+		},
+		{
+			"name": {
+				"en": "War Shipyard",
+				"de": "Kriegsschiffwerft"
+			},
+			"description": {
+				"en": "Large warships with heavy weapons give you many advantages when attacking.",
+				"de": "Große Kiegsschiffe mit schweren Waffen verschaffen dir beim Angriff so manchen Vorteil."
+			}
+		},
+		{
+			"name": {
+				"en": "Castle",
+				"de": "Burg"
+			},
+			"description": {
+				"en": "You are a powerful clanleader - build yourself a monument so there is no doubt.",
+				"de": "Ihr seit ein mächtiger Clanleader - baut euch ein Denkmal damit es keine Zweifel gibt."
+			}
+		}
+	],
+	"techobj_expectation": {
+		"en": "Expectation",
+		"de": "Voraussetzung"
+	},
+	"techobj_constDuration": {
+		"en": "Constuction Duration",
+		"de": "Baudauer"
+	},
+	"techobj_addBuildSpeed": {
+		"en": "Build Speed",
+		"de": "Baugeschwindigkeit"
+	},
+	"techobj_addPopGrowth": {
+		"en": "Population Growth",
+		"de": "Bevölkerungswachstum"
+	},
+	"techobj_addDefence": {
+		"en": "Defence",
+		"de": "Verteidigung"
+	},
+	"techobj_addAttack": {
+		"en": "Attack",
+		"de": "Angriffstärke"
+	},
 	"meta": {
 		"editor": "MW",
 		"version": "1.1"
