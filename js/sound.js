@@ -82,24 +82,25 @@ class cSound extends Phaser.Scene {
                 this.sfx.play('drum');
                 break;
             case 'endGame':
-                if (this.settings.music == false) {
+                //console.log("endGame", this.settings.music, this.settings.sfx);
+                if (this.settings.music == true) {
                     this.music.orgVolume = this.music.volume;
                     this.tweens.add({        //fadeout the background music
                         targets: this.music,
                         volume: 0,
-                        duration: 1000
+                        duration: 1500
                     });
                 }
-                //this.sfx.play('final');
-                if (this.settings.sfx == false) {
+                //play the final sound (and restart the bg music afterwards)
+                if (this.settings.sfx == true) {
                     var finalSound = this.sound.addAudioSprite('sfx');  //this way the final song will not be stopped
                     finalSound.play('final');
-                    finalSound.once('complete', function () {
-                        if (this.settings.music == false) {
+                    finalSound.once('complete', function () {    //restart music
+                        if (this.settings.music == true) {
                             this.music.volume = this.music.orgVolume;
                             this.music.play();
                         }
-                    }.bind(this));    //restart music
+                    }.bind(this));
                 }
                 break;
             case 'mute':

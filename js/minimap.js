@@ -438,8 +438,14 @@ class cMiniMap extends Phaser.Scene {
                     this.lang.mm_i_scale[this.settings.lang] + ": " + tIsland.scale + "\n" +
                     this.lang.mm_i_buildState[this.settings.lang] + ": " + tIsland.buildState + "\n" +
                     this.lang.mm_i_buildSpeed[this.settings.lang] + ": " + tIsland.buildSpeed + "\n" +
-                    this.lang.mm_i_currBuild[this.settings.lang] + ": " + tIsland.currentBuild + "\n" +
-                    this.lang.mm_i_currBuildConstTime[this.settings.lang] + ": " + tIsland.currentBuildConstTime.toFixed(0) + "\n" +
+                    this.lang.mm_i_currBuild[this.settings.lang] + ": "
+                for (var i = 0; i < this.gameScene.gameData.techObjects.length; i++) {
+                    if (tIsland.currentBuild & parseInt(this.gameScene.gameData.techObjects[i].binary, 2)) {
+                        iInfo = iInfo + this.lang.techobj_id[i].name[this.settings.lang];
+                        break;
+                    }
+                }
+                iInfo = iInfo + "\n" + this.lang.mm_i_currBuildConstTime[this.settings.lang] + ": " + tIsland.currentBuildConstTime.toFixed(0) + "\n" +
                     this.lang.mm_i_currBuildConstMax[this.settings.lang] + ": " + tIsland.currentBuildConstMax + "\n" +
                     this.lang.mm_i_population[this.settings.lang] + ": " + tIsland.population.toFixed(3) + "\n" +
                     this.lang.mm_i_populationRate[this.settings.lang] + ": " + tIsland.populationRate.toFixed(3) + "\n" +

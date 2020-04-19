@@ -87,6 +87,14 @@ class cMainMenu extends Phaser.Scene {
                 console.log("pwa_support");
             }
         }
+
+        var tText = "debug screen resolution:" +
+            "\ninner width: " + window.innerWidth +
+            "\ninner height: " + window.innerHeight +
+            "\ngame width: " + game.scale.width +
+            "\ngame height: " + game.scale.height;
+        this.newText(tWidth / 2, tHeight / 2, tText, { font: '30px Arial', fill: "black" }, 0.5, false);
+
     }
 
     setInfoPlate(data) {
@@ -535,7 +543,7 @@ class cMainMenu extends Phaser.Scene {
                 button.tween = tween;
                 if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
-                    if (button.tween != undefined) { console.log("tween_stop"); button.tween.stop(); }
+                    if (button.tween != undefined) { button.tween.stop(); }
                     this.setInfoPlate({ type: "instruction", bubbleId: 0 });
                 }.bind(this));
                 break;
@@ -660,7 +668,7 @@ class cMainMenu extends Phaser.Scene {
                         ship.setTexture("images", "portShipSiege");
                     }
                 });
-                
+
                 //show ship
                 timeline.add({
                     targets: [attackBubble, ship],
@@ -768,8 +776,8 @@ class cMainMenu extends Phaser.Scene {
                         outpost.alpha = 0.8;
                         outpost.visible = false;
                         pointer.x = data.right - 50,
-                        pointer.y = data.y + 50
-                        pointer.alpha = 1;                    
+                            pointer.y = data.y + 50
+                        pointer.alpha = 1;
                     }
                 });
                 timeline.loopDelay = 2000;
@@ -865,9 +873,17 @@ class cMainMenu extends Phaser.Scene {
         button.setOrigin(origin);
         button.removeAllListeners();
         button.setInteractive();
-        button.on('pointerup', function () {
-            game.events.emit('toSoundMsg', { type: 'btnClick' });
-        });
+        //click-sound
+        switch (name) {
+            case "island":
+            case "bubbles":
+                break; //cancel
+            default:
+                button.on('pointerup', function () {
+                    game.events.emit('toSoundMsg', { type: 'btnClick' });
+                });
+        }
+        //tint
         switch (name) {
             case "colorpicker":
             case "colorpickerNew":
@@ -899,6 +915,7 @@ class cMainMenu extends Phaser.Scene {
                 this.infoContainer.list[i].alpha = 1;
                 this.infoContainer.list[i].angle = 0;
                 this.infoContainer.list[i].isCropped = false;
+                this.infoContainer.list[i].removeAllListeners();
                 this.spriteGroup.killAndHide(this.infoContainer.list[i]);
             }
         };

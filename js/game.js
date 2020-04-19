@@ -62,7 +62,7 @@ class cGame extends Phaser.Scene {
         //console.log("camera", aspectRatio, this.cam, 0, 0, tWidth, tHeight, "game", game.scale.width, game.scale.height);
 
         //load the gameData and gameSettings
-        this.gameData = this.cache.json.get('gameData');    //json-parce(json.stringify -> copy of the original
+        this.gameData = JSON.parse(JSON.stringify(this.cache.json.get('gameData')));    //json-parce(json.stringify -> copy of the original
         //backgroundimage
         var background = this.add.sprite(-150, 0, "background");
         background.setOrigin(0);
@@ -728,7 +728,7 @@ class Tribe {
         for (i = 0; i < scene.shipGroup.children.entries.length; i++) {
             tShip = scene.shipGroup.children.entries[i];
             //belongs this ship to our tribe
-            if (tShip.tribe == this.nr) {
+            if (tShip.active && tShip.tribe == this.nr) {
                 possibleIslands[tShip.aim].travelingMen += tShip.population * tShip.defence;
             } else {
                 possibleIslands[tShip.aim].otherTribesMen += tShip.population * tShip.defence;
@@ -1176,18 +1176,17 @@ class Island extends Phaser.GameObjects.Sprite {
         //check if there is a free ship-sprite to use
         for (i = 0; i < this.scene.shipGroup.children.entries.length; i++) {
             if (this.scene.shipGroup.children.entries[i].active != true) {
-                hit = i;
-                //console.log("reused_ship");
+                tShip = this.scene.shipGroup.children.entries[i];
+                tShip.setActive(true);
+                tShip.setVisible(true);
                 break;
             }
         }
-        if (hit >= 0) {
-            tShip = this.scene.shipGroup.children.entries[hit];
-            tShip.setActive(true);
-            tShip.setVisible(true);
-        } else {
+        if (tShip == undefined) {
             tShip = new Ship(this.scene);
+            this.scene.shipGroup.add(tShip);
         }
+        //set the ship atributes (texture, speed, defence)
         for (i = 0; i < this.scene.gameData.shipObjects.length; i++) {
             if (this.bubbleGroup.children.entries[7].setting == parseInt(this.scene.gameData.shipObjects[i].expectation, 2)) {
                 tShip.setTexture('images', this.scene.gameData.shipObjects[i].textureName);
@@ -1209,8 +1208,6 @@ class Island extends Phaser.GameObjects.Sprite {
         tShip.waypoints = this.scene.setShipPath(tShip.x - tShip.displayWidth / 2, tShip.y + 15, this.scene.islandGroup.children.entries[aimIslandNr]);
         //rotate the Ship to the nearest angle (=> max +-180°)
         tShip.waypoints[0].angle = tShip.rotation + Math.atan2(Math.sin(tShip.waypoints[0].angle - tShip.rotation), Math.cos(tShip.waypoints[0].angle - tShip.rotation));
-        //console.log("setSails", this, tShip, aimIsland)
-        this.scene.shipGroup.add(tShip);
 
         //move the ship slowly to the starting position
         //rotate the ship slowly to the start-angle
@@ -1228,7 +1225,6 @@ class Island extends Phaser.GameObjects.Sprite {
                 targets[0].isSailing = true;
             }
         });
-
 
         //reset the buildState and remove the portShip & SteeringWeel bubble
         this.buildState ^= this.bubbleGroup.children.entries[7].setting;
@@ -1343,6 +1339,14 @@ class Ship extends Phaser.GameObjects.Sprite {
                 }
             }
         }
+        this.population = 0;
+        this.attack = 0;
+        this.tribe = 0;
+        this.origin = 0;
+        this.aim = 0;
+        this.sailCounter = 0;
+        this.waypoints = new Array();
+        this.isSailing = false;
 
         this.setActive(false);
         this.setVisible(false);
