@@ -30,7 +30,7 @@ window.onload = function () {
             }
         },
         scale: {
-            mode: Phaser.Scale.ENVELOP,
+            mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.NO_CENTER
         }
     }
