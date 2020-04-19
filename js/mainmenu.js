@@ -19,7 +19,7 @@ class cMainMenu extends Phaser.Scene {
     create() {
         // create main menu text and images -
         //set the bounds of the world
-        var aspectRatio = game.scale.height / game.scale.width;
+        var aspectRatio = window.innerHeight / window.innerWidth;
         var tWidth = Math.sqrt(2000000 / aspectRatio);
         var tHeight = tWidth * aspectRatio;
         game.scale.resize(tWidth, tHeight);
