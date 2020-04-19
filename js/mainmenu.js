@@ -365,7 +365,7 @@ class cMainMenu extends Phaser.Scene {
                 }.bind(this, button, data));
                 //StartGame
                 if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
-                this.newText(x + 230, y + data.height - 60, this.lang.menu_nG_start[this.settings.lang], tFont, 0.5);
+                this.newText(button.x + button.displayWidth + 50, button.y, this.lang.menu_nG_start[this.settings.lang], tFont, 0.5);
                 break;
             case 'statistics':
                 //Text
