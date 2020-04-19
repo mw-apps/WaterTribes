@@ -89,8 +89,8 @@ class cMainMenu extends Phaser.Scene {
         }
 
         var tText = "debug screen resolution:" +
-            "\ninner width: " + window.innerWidth +
-            "\ninner height: " + window.innerHeight +
+            "\nw.inner width: " + window.innerWidth +
+            "\nw.inner height: " + window.innerHeight +
             "\ngame width: " + game.scale.width +
             "\ngame height: " + game.scale.height;
         this.newText(tWidth / 2, tHeight / 2, tText, { font: '30px Arial', fill: "black" }, 0.5, false);
