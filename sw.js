@@ -1,5 +1,6 @@
-﻿const appPrefix = 'watertribes_';
+﻿const updater = "1";  //to update the sw, i have to change at least one line of this code, so this will be it
 const version = new URL(location).searchParams.get('version');
+const appPrefix = 'watertribes_';
 const cacheName = appPrefix + version;
 var filesToCache = [
     './',
@@ -44,7 +45,6 @@ self.addEventListener('install', function (event) {
         })
     )
 });
-
 
 //FETCH EVENT: triggered for every request made by index page, after install.
 self.addEventListener('fetch', (event) => {
