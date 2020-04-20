@@ -1,5 +1,4 @@
-
-const version = "0.1.15";
+const version = '0.1.18';
 
 window.addEventListener('beforeinstallprompt', function (event) {
     //console.log('beforeinstallprompt', this);
@@ -9,11 +8,13 @@ window.addEventListener('beforeinstallprompt', function (event) {
 
 window.onload = function () {
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js?version=' + encodeURIComponent(version), { scope: '.' }).then(function (registration) {
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        navigator.serviceWorker.register('./sw.js?version' + encodeURIComponent(version), { scope: '.' }).then(function (registration) {
+            //console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }, function (err) {
             console.log('ServiceWorker registration failed: ', err);
         });
+    } else {
+        //console.log('ServiceWorker not supported...');
     }
 
     //PWA chrome debug: wait a few seconds until PWA is loaded
