@@ -1,5 +1,5 @@
 
-const version = "0.1.12";
+const version = "0.1.14";
     
 window.addEventListener('beforeinstallprompt', function (event) {
     //console.log('beforeinstallprompt', this);
@@ -21,22 +21,14 @@ window.onload = function () {
         parent: 'content',
         width: window.innerWidth,
         height: window.innerHeight,
-        backgroundColor: '#000000',
+        backgroundColor: 0x000000,
         type: Phaser.WEBGL,
         scene: [cPreload, cMainMenu, cGame, cMiniMap, cSound],
-        physics: {
-            default: "arcade",
-            arcade: {
-                debug: false
-            }
-        },
         scale: {
-            mode: Phaser.Scale.WIDTH_CONTROLS_HEIGHT,
+            mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
             autoCenter: Phaser.Scale.NO_CENTER
         }
     }
-    //game = new Phaser.Game(800, 500);
     game = new Phaser.Game(config);
     game.version = version;
-
 };
