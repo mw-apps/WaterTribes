@@ -14,7 +14,6 @@ class cPreload extends Phaser.Scene {
         //load image atlas
         this.load.atlas('images', './assets/spritesheets/imageAtlas.png', './assets/spritesheets/imageAtlas.json');
         this.load.image('background', './assets/background.png');
-        this.load.image('instruction', './assets/instruction.png');
         //load techTree
         this.load.json('gameData', './assets/gameData.json');
         //load language

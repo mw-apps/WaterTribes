@@ -7,12 +7,8 @@
   "orientation": "landscape",
   "theme_color": "#000000",
   "background_color": "#7bb4f2",
+  "chrome": { "navigation": false },
   "icons": [
-    {
-      "src": "favicon.png",
-      "sizes": "16x16",
-      "type": "image/png"
-    },
     {
       "src": "./assets/icons/icon_512.png",
       "sizes": "512x512",
@@ -47,6 +43,5 @@
   "developer": {
     "name": "MW_Apps",
     "url": "https://github.com/mw-apps/"
-  },
-  "default_locale": "de"
+  }
 }

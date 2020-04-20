@@ -1,4 +1,6 @@
 
+const version = "0.1.12";
+    
 window.addEventListener('beforeinstallprompt', function (event) {
     //console.log('beforeinstallprompt', this);
     event.preventDefault();
@@ -6,9 +8,8 @@ window.addEventListener('beforeinstallprompt', function (event) {
 });
 
 window.onload = function () {
-
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js', { scope: '.' }).then(function (registration) {
+        navigator.serviceWorker.register('./sw.js?version=' + encodeURIComponent(version) , { scope: '.' }).then(function (registration) {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }, function (err) {
             console.log('ServiceWorker registration failed: ', err);
@@ -36,5 +37,6 @@ window.onload = function () {
     }
     //game = new Phaser.Game(800, 500);
     game = new Phaser.Game(config);
+    game.version = version;
 
 };

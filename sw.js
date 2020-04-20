@@ -1,9 +1,10 @@
-﻿//workbox.precaching.precacheAndRoute(__precacheManifest)
-
-var cacheName = 'watertribes-sw-v6';
+﻿const appPrefix = 'watertribes_';
+const version = new URL(location).searchParams.get('version');
+const cacheName = appPrefix + version;
 var filesToCache = [
+    './',
     './index.html',
-    './favicon.png',
+    './favicon.ico',
     './manifest.json',
     './sw.js',
     './assets/audio/sfx.json',
@@ -14,7 +15,7 @@ var filesToCache = [
     './assets/icons/icon_512.png',
     './assets/spritesheets/imageAtlas.json',
     './assets/spritesheets/imageAtlas.png',
-    './assets/back.png',
+    './assets/background.png',
     './assets/gameData.json',
     './assets/language.json',
     './css/index.css',
@@ -27,18 +28,18 @@ var filesToCache = [
     './js/preload.js',
     './js/sound.js'
 ];
-
+//*
 self.addEventListener('install', function (event) {
-    console.log('sw install');
+    //console.log('sw install');
     event.waitUntil(
         caches.open(cacheName).then(function (cache) {
-            console.log('sw install: caching files', filesToCache);
+            //console.log('sw install: caching files', filesToCache);
             return cache.addAll(filesToCache)
                 .then(() => {
                     console.log('sw install: All files are cached');
                     return self.skipWaiting(); //To forces the waiting service worker to become the active service worker
                 }).catch(function (err) {
-                    console.log(err);
+                    console.log('sw install:', err);
                 })
         })
     )
@@ -47,7 +48,7 @@ self.addEventListener('install', function (event) {
 
 //FETCH EVENT: triggered for every request made by index page, after install.
 self.addEventListener('fetch', (event) => {
-    console.log('sw fetch', event.request.url);
+    //console.log('sw fetch', event.request.url);
     //Tell the browser to wait for newtwork request and respond with below
     event.respondWith(
         caches.match(event.request).then(function (response) {
@@ -60,16 +61,15 @@ self.addEventListener('fetch', (event) => {
 
 //ACTIVATE EVENT: triggered once after registering, also used to clean up caches.
 self.addEventListener('activate', function (event) {
-    console.log('sw activate');
+    //console.log('sw activate');
     event.waitUntil(
         caches.keys().then(function (keyList) {
             return Promise.all(keyList.map(function (key) {
                 if (key !== cacheName) {
-                    console.log('sw removing old cache', key);
+                    //console.log('sw removing old cache', key);
                     return caches.delete(key);
                 }
             }));
         })
     );
 });
-

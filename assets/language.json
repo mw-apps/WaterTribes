@@ -419,6 +419,26 @@
 				"en": "You are a powerful clanleader - build yourself a monument so there is no doubt.",
 				"de": "Ihr seit ein mächtiger Clanleader - baut euch ein Denkmal damit es keine Zweifel gibt."
 			}
+		},
+		{
+			"name": {
+				"en": "Ship",
+				"de": "Schiff"
+			},
+			"description": {
+				"en": "Simple Ship",
+				"de": "Einfaches Schiff"
+			}
+		},
+		{
+			"name": {
+				"en": "Siegeship",
+				"de": "Kriegsschiff"
+			},
+			"description": {
+				"en": "bigger, stronger, faster",
+				"de": "größer, stärker, schneller"
+			}
 		}
 	],
 	"techobj_expectation": {

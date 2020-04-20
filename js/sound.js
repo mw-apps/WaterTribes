@@ -29,7 +29,7 @@ class cSound extends Phaser.Scene {
             this.music.play();
         }
 
-        //sefine the sound effect variable
+        //define the sound effect variable
         this.sfx = this.sound.addAudioSprite('sfx');
 
         //listen to soundevents

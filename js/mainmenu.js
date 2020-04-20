@@ -44,11 +44,17 @@ class cMainMenu extends Phaser.Scene {
         this.infoContainer.add(this.plate);
         this.removeInfoPlate();
         setTimeout(function () { this.setInfoPlate({ type: "menu" }); }.bind(this), 200);
+        //differ between mobile and desktop (action-button size)
+        if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
+            this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle) {
+            this.mobile = true;
+        }
+        //this.mobile = true; //ToDo
+
         //PWA support
         if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
             this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle ||
             this.sys.game.device.browser.chrome || this.sys.game.device.browser.mobileSafari) {
-            this.mobile = true;
             //check if App is running as PWA via query string parameter
             var urlParams;
             var match,
@@ -93,8 +99,9 @@ class cMainMenu extends Phaser.Scene {
             "\nw.inner height: " + window.innerHeight +
             "\ngame width: " + game.scale.width +
             "\ngame height: " + game.scale.height;
-        this.newText(tWidth / 2, tHeight / 2, tText, { font: '30px Arial', fill: "black" }, 0.5, false);
+        this.newText(5, 500, tText, { font: '30px Arial', fill: "black" }, 0, false);
 
+        this.newText(5, 5, "Version: " + game.version, { font: '20px Arial', fill: "black" }, 0, false);
     }
 
     setInfoPlate(data) {
@@ -250,7 +257,7 @@ class cMainMenu extends Phaser.Scene {
                     slider.calcNewPosition();
                 });
                 //if (this.mobile == true) { var tFont = { font: 'bold 35x Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
-                var sliderText = this.newText(x + 420, y + 220 + this.gameData.tribeMax * 70, this.newGameSettings.islands, tFont, 0.5);
+                var sliderText = this.newText(x + 430, y + 220 + this.gameData.tribeMax * 70, this.newGameSettings.islands, tFont, 0.5);
                 var slider = this.newSprite(x + 80, y + 220 + this.gameData.tribeMax * 70, "slider", 0, "images", 'emptyBubble', 0.5);
                 if (this.mobile == true) { slider.scale = 0.5; } else { slider.scale = 0.3; }
                 slider.textObj = sliderText;
