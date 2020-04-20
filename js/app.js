@@ -1,4 +1,4 @@
-const version = '0.1.19';
+const version = '0.1.20';
 
 window.addEventListener('beforeinstallprompt', function (event) {
     //console.log('beforeinstallprompt', this);
@@ -18,22 +18,22 @@ window.onload = function () {
     }
 
     //PWA chrome debug: wait a few seconds until PWA is loaded
-    //window.setTimeout(function () {
-    // game config
-    var config = {
-        parent: 'content',
-        width: window.innerWidth,
-        height: window.innerHeight,
-        backgroundColor: 0x000000,
-        type: Phaser.WEBGL,
-        disableContextMenu: true,
-        scene: [cPreload, cMainMenu, cGame, cMiniMap, cSound],
-        scale: {
-            mode: Phaser.Scale.FIT,
-            autoCenter: Phaser.Scale.CENTER_BOTH
+    window.setTimeout(function () {
+        // game config
+        var config = {
+            parent: 'content',
+            width: window.innerWidth,
+            height: window.innerHeight,
+            backgroundColor: 0x000000,
+            type: Phaser.WEBGL,
+            disableContextMenu: true,
+            scene: [cPreload, cMainMenu, cGame, cMiniMap, cSound],
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH
+            }
         }
-    }
-    game = new Phaser.Game(config);
-    game.version = version;
-    //}, 1000)
+        game = new Phaser.Game(config);
+        game.version = version;
+    }, 1000)
 };
