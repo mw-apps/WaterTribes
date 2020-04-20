@@ -73,11 +73,12 @@ class cPreload extends Phaser.Scene {
             };
             localStorage.setItem("stats", JSON.stringify(saveObject));
         }
-        
+
         //delay the mainMenu, to show the splash-screen
         setTimeout(function () {
+            game.scale.resize(window.innerWidth, window.innerHeight);
             this.scene.run("soundScene");   //run: If the given Scene is paused, it will resume it. If sleeping, it will wake it. If not running at all, it will be started.
             this.scene.start("mainMenu");
-        }.bind(this), 500);
+        }.bind(this), 700);
     }
 }

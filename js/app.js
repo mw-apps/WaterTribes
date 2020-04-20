@@ -1,6 +1,6 @@
 
-const version = "0.1.14";
-    
+const version = "0.1.15";
+
 window.addEventListener('beforeinstallprompt', function (event) {
     //console.log('beforeinstallprompt', this);
     event.preventDefault();
@@ -9,13 +9,15 @@ window.addEventListener('beforeinstallprompt', function (event) {
 
 window.onload = function () {
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js?version=' + encodeURIComponent(version) , { scope: '.' }).then(function (registration) {
+        navigator.serviceWorker.register('./sw.js?version=' + encodeURIComponent(version), { scope: '.' }).then(function (registration) {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }, function (err) {
             console.log('ServiceWorker registration failed: ', err);
         });
     }
 
+    //PWA chrome debug: wait a few seconds until PWA is loaded
+    //window.setTimeout(function () {
     // game config
     var config = {
         parent: 'content',
@@ -31,4 +33,5 @@ window.onload = function () {
     }
     game = new Phaser.Game(config);
     game.version = version;
+    //}, 1000)
 };
