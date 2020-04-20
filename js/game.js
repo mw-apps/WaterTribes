@@ -50,7 +50,7 @@ class cGame extends Phaser.Scene {
         aspectRatio = game.scale.height / game.scale.width;
         var tWidth = Math.sqrt(4000000 / aspectRatio);
         var tHeight = tWidth * aspectRatio;
-        game.scale.resize(tWidth, tHeight);
+        this.scale.setGameSize(tWidth, tHeight);
         this.cam = this.cameras.main;
         this.cam.setBounds(0, 0, tWidth, tHeight);
         this.cam.bounds = this.cam.getBounds();

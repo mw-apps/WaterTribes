@@ -22,8 +22,7 @@ class cMainMenu extends Phaser.Scene {
         var aspectRatio = window.innerHeight / window.innerWidth;
         var tWidth = Math.sqrt(2000000 / aspectRatio);
         var tHeight = tWidth * aspectRatio;
-        game.scale.resize(tWidth, tHeight);
-        this.cameras.main.setBounds(0, 0, tWidth, tHeight);
+        this.scale.setGameSize(tWidth, tHeight);
         //load the gameData, language and newGameSettings
         this.gameData = this.cache.json.get('gameData');    //json-parce(json.stringify -> copy of the original
         this.lang = this.cache.json.get('language');
@@ -49,8 +48,6 @@ class cMainMenu extends Phaser.Scene {
             this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle) {
             this.mobile = true;
         }
-        //this.mobile = true; //ToDo
-
         //PWA support
         if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
             this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle ||

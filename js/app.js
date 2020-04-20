@@ -1,4 +1,4 @@
-const version = '0.1.18';
+const version = '0.1.19';
 
 window.addEventListener('beforeinstallprompt', function (event) {
     //console.log('beforeinstallprompt', this);
@@ -26,10 +26,11 @@ window.onload = function () {
         height: window.innerHeight,
         backgroundColor: 0x000000,
         type: Phaser.WEBGL,
+        disableContextMenu: true,
         scene: [cPreload, cMainMenu, cGame, cMiniMap, cSound],
         scale: {
-            mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
-            autoCenter: Phaser.Scale.NO_CENTER
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH
         }
     }
     game = new Phaser.Game(config);
