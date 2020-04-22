@@ -76,6 +76,9 @@ class cPreload extends Phaser.Scene {
 
         this.scene.run("soundScene");   //run: If the given Scene is paused, it will resume it. If sleeping, it will wake it. If not running at all, it will be started.
         //delay the mainMenu, to show the splash-screen
-        setTimeout(function () { this.scene.start("mainMenu"); }.bind(this), 700);
+        setTimeout(function () { 
+            game.scale.scaleMode = Phaser.Scale.FIT;        //reset scaleMode for Chrome Bug
+            this.scene.start("mainMenu"); 
+        }.bind(this), 900);
     }
 }
