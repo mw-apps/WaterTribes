@@ -17,7 +17,7 @@ class cMainMenu extends Phaser.Scene {
     }
 
     create() {
-        // create main menu text and images -
+        // create main menu text and images
         //set the bounds of the world
         var aspectRatio = window.innerHeight / window.innerWidth;
         var tWidth = Math.sqrt(2000000 / aspectRatio);
@@ -43,12 +43,14 @@ class cMainMenu extends Phaser.Scene {
         this.infoContainer.add(this.plate);
         this.removeInfoPlate();
         setTimeout(function () { this.setInfoPlate({ type: "menu" }); }.bind(this), 200);
+        //show Version-Info:
+        this.newText(5, 5, "Version: " + game.version, { font: '20px Arial', fill: "black" }, 0, false);
         //differ between mobile and desktop (action-button size)
         if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
             this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle) {
             this.mobile = true;
         }
-        //PWA support
+        //PWA support Bubble
         if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
             this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle ||
             this.sys.game.device.browser.chrome || this.sys.game.device.browser.mobileSafari) {
@@ -59,18 +61,15 @@ class cMainMenu extends Phaser.Scene {
                 search = /([^&=]+)=?([^&]*)/g,
                 decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
                 query = window.location.search.substring(1);
-
             urlParams = {};
             while (match = search.exec(query)) {
                 urlParams[decode(match[1])] = decode(match[2]);
             }
-            //console.log("check urlParams", urlParams, window.location.search.substring(1), window.location);
-
             if (urlParams["mode"] == "PWA") {
-                console.log("This is running as PWA.");
+                console.log("Game is running as PWA-App");
             } else {
                 //PWA button
-                var pwaButton = this.newSprite(tWidth / 2, -150, "pwa", 0, "images", "emptyBubble", 0.5, false);
+                var pwaButton = this.newSprite(tWidth / 2, -200, "pwa", 0, "images", "emptyBubble", 0.5, false);
                 pwaButton.scale = 3;
                 pwaButton.on('pointerup', function () {
                     if (window.promptEvent) { window.promptEvent.prompt(); }
@@ -90,15 +89,6 @@ class cMainMenu extends Phaser.Scene {
                 console.log("pwa_support");
             }
         }
-
-        var tText = "debug screen resolution:" +
-            "\nw.inner width: " + window.innerWidth +
-            "\nw.inner height: " + window.innerHeight +
-            "\ngame width: " + game.scale.width +
-            "\ngame height: " + game.scale.height;
-        this.newText(5, 500, tText, { font: '30px Arial', fill: "black" }, 0, false);
-
-        this.newText(5, 5, "Version: " + game.version, { font: '20px Arial', fill: "black" }, 0, false);
     }
 
     setInfoPlate(data) {
@@ -141,7 +131,7 @@ class cMainMenu extends Phaser.Scene {
         var y = this.scale.height / 2 - data.height / 2 - 20;   //in the middle of the y-axis
         if (this.infoContainer.visible == true) {        //ToDo
             //infoPlate is visible, so there is no tween necessary
-            x -= data.width;
+            x = this.scale.width + 200 - data.width;
             this.removeInfoPlate();
             this.infoContainer.visible = true; //set back to visible, because in "removeInfoPlate" it is set to false
         } else {

@@ -1,4 +1,4 @@
-﻿const updater = "2";  //to update the sw, i have to change at least one line of this code, so this will be it
+﻿const updater = "3";  //to update the sw, i have to change at least one line of this code, so this will be it
 const version = new URL(location).searchParams.get('version');
 const appPrefix = 'watertribes_';
 const cacheName = appPrefix + version;

@@ -1133,7 +1133,7 @@ class Island extends Phaser.GameObjects.Sprite {
         else {
             //calculate new constructiontime
             //console.log("buildProcess", this, tBubble);
-            this.currentBuildConstTime += (this.buildSpeed + (this.population / 10) / this.populationMax);
+            this.currentBuildConstTime += (this.buildSpeed + (this.population) / this.populationMax);
             //show the buildstate
             let tHeight = 3 + ((tBubble.frame.height - 3) * this.currentBuildConstTime / this.currentBuildConstMax);
             tBubble.setCrop(0, (tBubble.frame.height) - tHeight, tBubble.frame.width, tHeight)

@@ -102,6 +102,7 @@ class cMiniMap extends Phaser.Scene {
             case 'newIsland':
                 this.updateMiniMap();
                 this.checkEndGame();
+                this.saveGame();
                 break;
             case 'islandInfo':
                 game.events.emit('toSoundMsg', { type: 'btnClick' });
@@ -193,7 +194,7 @@ class cMiniMap extends Phaser.Scene {
                 lstTribe = i;
             }
         }
-        if (activeTribes == 1) { this.endGame(lstTribe); }   //toDo: perhaps end game if player has lost, now end game when there is only one player left
+        if (activeTribes == 1 ) { this.endGame(lstTribe); }   //toDo: perhaps end game if player has lost, now end game when there is only one player left
         //console.log("checkEndGame");
     }
 
@@ -264,7 +265,7 @@ class cMiniMap extends Phaser.Scene {
             if (saveObject.longestLoss < diffTime) { saveObject.longestLoss = diffTime; }
         }
         localStorage.setItem("stats", JSON.stringify(saveObject));
-        //console.log("saveStats", JSON.parse(localStorage.getItem("stats")));
+        console.log("saveStats", JSON.parse(localStorage.getItem("stats")));
     }
 
     clickOptionButton(button) {

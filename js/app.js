@@ -1,4 +1,4 @@
-const version = '0.1.20';
+const version = '0.1.21';
 
 window.addEventListener('beforeinstallprompt', function (event) {
     //console.log('beforeinstallprompt', this);
