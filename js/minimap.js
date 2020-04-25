@@ -296,7 +296,7 @@ class cMiniMap extends Phaser.Scene {
             if (saveObject.longestLoss < diffTime) { saveObject.longestLoss = diffTime; }
         }
         localStorage.setItem("stats", JSON.stringify(saveObject));
-        console.log("saveStats", JSON.parse(localStorage.getItem("stats")));
+        if (this.debug == true) { console.log("saveStats", JSON.parse(localStorage.getItem("stats"))); }
     }
 
     clickOptionButton(button) {
