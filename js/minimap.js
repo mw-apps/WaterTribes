@@ -549,7 +549,7 @@ class cMiniMap extends Phaser.Scene {
                 if (this.mobile == true) { button.scale = 1.4; } else { button.scale = 1.0 }
                 button.on('pointerup', function (x, y, data, graph, subheader, subTypeText) {
                     this.scene.gameScene.status = "stop";
-                    this.saveGame();
+                    this.scene.saveGame();
                     this.scene.scene.start("mainMenu");
                     this.scene.scene.stop("playGame");
                     this.scene.scene.stop("miniMap");
