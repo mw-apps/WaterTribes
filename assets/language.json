@@ -205,6 +205,26 @@
 		"en": "Defence",
 		"de": "Verteidigungstärke"
 	},
+	"menu_lG_header": {
+		"en": "Load Game",
+		"de": "Spiel laden"
+	},
+	"menu_lG_text": {
+		"en": "the following game is not finished yet:",
+		"de": "die folgende Partie ist noch nicht beendet:"
+	},
+	"menu_lG_islands": {
+		"en": "Islands",
+		"de": "Inseln"
+	},
+	"menu_overrSG_header": {
+		"en": "New Game",
+		"de": "Neues Spiel"
+	},
+	"menu_overrSG_text": {
+		"en": "The last game is not over yet.\nDo you really want to give up and start a new game?",
+		"de": "Das letzte Spiel ist noch nicht vorbei.\nWillst du wirklich aufgeben und ein neues Spiel beginnen?"
+	},
 	"mm_i_header": {
 		"en": "Island Info",
 		"de": "Inselinfo"

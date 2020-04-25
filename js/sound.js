@@ -31,7 +31,8 @@ class cSound extends Phaser.Scene {
 
         //define the sound effect variable
         this.sfx = this.sound.addAudioSprite('sfx');
-
+        this.sfx.mute = !this.settings.sfx;
+        
         //listen to soundevents
         game.events.on('toSoundMsg', function (data) {
             this.newMessage(data);
@@ -40,6 +41,7 @@ class cSound extends Phaser.Scene {
 
     newMessage(data) {
         //console.log("sound_newMessage", this, data);
+        this.sfx.mute = !this.settings.sfx;     //ToDo: debug ... first hit emits always a sound
         switch (data.type) {
             case 'updateSettings':
                 this.settings = JSON.parse(localStorage.getItem('settings'));
@@ -48,11 +50,7 @@ class cSound extends Phaser.Scene {
                 } else if (this.settings.music == false && this.music.isPlaying == true) {
                     this.music.stop();
                 }
-                if (this.settings.sfx == true) {
-                    this.sfx.mute = false;
-                } else {
-                    this.sfx.mute = true;
-                }
+                this.sfx.mute = !this.settings.sfx;
                 break;
             case 'btnClick':
                 this.sfx.play('click');

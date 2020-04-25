@@ -26,6 +26,7 @@ class cGame extends Phaser.Scene {
         this.cam;       //the camera of this scene
         this.controls;  //cursor-keys
         this.statistics = new Array();    //save all events (newIsland, buildprocess, polulation) for some statistics
+        this.loadGame;
     }
 
     preload() {
@@ -33,14 +34,23 @@ class cGame extends Phaser.Scene {
     }
 
     create(data) {
-        //console.log("create", data);
-        if (data == undefined) {
+        //differ between new game and loadGame
+        if (data == undefined) {    //backup, situation sould not happen
+            console.log("game_create: data==undefined");
+            data.type = "newGame";
             data.tribes = [];
-            data.tribes.push({ name: "you", colorNr: 0, aiLevel: 3 });
-            data.tribes.push({ name: "CPU_1", colorNr: 1, aiLevel: 1 });
+            data.tribes.push({ name: "you", color: 0x0057e7, aiLevel: 3 });
+            data.tribes.push({ name: "CPU_1", color: 0xd62d20, aiLevel: 1 });
             data.islands = 15;
             data.sound = 0;
-            data.loadGame = 0;
+            data.loadGame = {};
+        }
+        if (data.type == "loadGame") {
+            this.loadGame = JSON.parse(localStorage.getItem("saveGame"));
+            this.loadGame.tribes.splice(0, 1);  //"empty"Tribe will be added at the tribe-startup section
+            data.tribes = this.loadGame.tribes;
+            data.islands = this.loadGame.islands.length;
+            if (this.debug == true) { console.log("loadGame", data, this.loadGame); }
         }
         //world-settings
         //set the bounds of the world
@@ -85,11 +95,11 @@ class cGame extends Phaser.Scene {
         //tribes
         this.tribes = new Array();   //each tribe is stored in this group
         this.tribes[0] = (new Tribe(this, 0, 'empty', '0xffffff'));
-        this.tribes[1] = (new Tribe(this, 1, data.tribes[0].name, this.gameData.tribeColors[data.tribes[0].colorNr].replace("#", "0x")));
+        this.tribes[1] = (new Tribe(this, 1, data.tribes[0].name, data.tribes[0].color));
         this.tribes[1].ai = 0;
         this.tribes[1].aiLevel = 3;
         for (var i = 1; i < data.tribes.length; i++) {
-            this.tribes[i + 1] = (new Tribe(this, i + 1, data.tribes[i].name, this.gameData.tribeColors[data.tribes[i].colorNr].replace("#", "0x")));
+            this.tribes[i + 1] = (new Tribe(this, i + 1, data.tribes[i].name, data.tribes[i].color));
             this.tribes[i + 1].ai = 3;
             this.tribes[i + 1].aiLevel = data.tribes[i].aiLevel;
         }
@@ -135,7 +145,7 @@ class cGame extends Phaser.Scene {
         }, this);
 
         //set the camera to the start-island
-        this.cam.centerOn(this.islandGroup.children.entries[this.tribes[1].islands[0]].x, this.islandGroup.children.entries[this.tribes[1].islands[0]].y);
+        if (this.tribes[1].length > 0) { this.cam.centerOn(this.islandGroup.children.entries[this.tribes[1].islands[0]].x, this.islandGroup.children.entries[this.tribes[1].islands[0]].y); }
 
         //swipe/pinch
         var gestures = this.rexGestures.add.pinch();
@@ -163,7 +173,11 @@ class cGame extends Phaser.Scene {
         this.scene.launch("miniMap");
 
         this.statistics = new Array();
-        this.getStatistics();
+        if (this.loadGame == undefined) {
+            this.getStatistics();
+        } else {
+            this.statistics = this.loadGame.statistics;
+        }
         this.status = "playing";
     }
 
@@ -247,57 +261,76 @@ class cGame extends Phaser.Scene {
         var tIsland; //new Island
         var tChild;     //childIsland, used in the overlap-check
         var tIslandPoint = new Phaser.Geom.Point();  //position of the new Island, used for distance calculation
-        var tTemp;  //islandname
+        var tIslandname;  //islandname
 
         //create the Islands one by one
         for (i = 0; i < this.islandGroup.count; i++) {
             //get new Islandname
-            tTemp = this.gameData.islandNames[Math.floor(Math.random() * this.gameData.islandNames.length)];
+            tIslandname = this.gameData.islandNames[Math.floor(Math.random() * this.gameData.islandNames.length)];
+            if (this.loadGame != undefined) { tIslandname = this.loadGame.islands[i].name; }
             //remove the selected name from the name pool
-            var indexName = this.gameData.islandNames.indexOf(tTemp);
+            var indexName = this.gameData.islandNames.indexOf(tIslandname);
             if (indexName > -1) {
                 this.gameData.islandNames.splice(indexName, 1);
             }
 
             //create new island
-            var tIsland = new Island({ scene: this, x: 200, y: 200, islandNr: i, islandName: tTemp });
-            if (i + 1 < this.tribes.length) {
-                tIsland.tribe = i + 1;
-                tIsland.text.fill = this.tribes[i + 1].color;
-                tIsland.flag.tint = this.tribes[i + 1].color;
-                tIsland.populationMax = 100;
-                tIsland.scale = 0.5;
-                tIsland.halfWidth = tIsland.displayWidth / 2;
-                tIsland.halfHeight = tIsland.displayHeight / 2;
-                tIsland.population = 20;
-                tIsland.buildState = parseInt('10011', 2);  // ToDo     //start island has startbuildings (outpost & shipyard)
-                this.tribes[i + 1].newIsland(this, i);
-                //console.log("createTribeIsland", tIsland.name, tIsland);
-            }
-            //calculate the new position (keep some distance between the islands)3
-            var looper = 0;
-            var cancel = false;
-            do {
-                var iPositionX = Phaser.Math.Between(tIsland.width, this.cam.bounds.width - tIsland.width);
-                var iPositionY = Phaser.Math.Between(tIsland.height, this.cam.bounds.height - tIsland.height);
-                tIslandPoint.setTo(iPositionX, iPositionY);
-                //check if islands overlap
-                overlap = false;
-                for (j = 0; j < this.islandGroup.children.entries.length; j++) {
-                    tChild = this.islandGroup.children.entries[j];
-                    //be sure the new island is away enough from the esiting ones
-                    if (Phaser.Math.Distance.Between(tChild.x, tChild.y, tIslandPoint.x, tIslandPoint.y) < 250) {
-                        //console.log("check island overlap", "OVERLAP");
-                        overlap = true;
+            var tIsland = new Island({ scene: this, x: 200, y: 200, islandNr: i, islandName: tIslandname });
+            if (this.loadGame == undefined) {
+                if (i + 1 < this.tribes.length) {
+                    tIsland.tribe = i + 1;
+                    tIsland.text.fill = this.tribes[i + 1].color;
+                    tIsland.flag.tint = this.tribes[i + 1].color;
+                    tIsland.populationMax = 100;
+                    tIsland.scale = 0.5;
+                    tIsland.halfWidth = tIsland.displayWidth / 2;
+                    tIsland.halfHeight = tIsland.displayHeight / 2;
+                    tIsland.population = 20;
+                    tIsland.buildState = parseInt('10011', 2);  // ToDo     //start island has startbuildings (outpost & shipyard)
+                    this.tribes[i + 1].newIsland(this, i);
+                }
+                //calculate the new position (keep some distance between the islands)
+                var looper = 0;
+                var cancel = false;
+                do {
+                    var iPositionX = Phaser.Math.Between(tIsland.width, this.cam.bounds.width - tIsland.width);
+                    var iPositionY = Phaser.Math.Between(tIsland.height, this.cam.bounds.height - tIsland.height);
+                    tIslandPoint.setTo(iPositionX, iPositionY);
+                    //check if islands overlap
+                    overlap = false;
+                    for (j = 0; j < this.islandGroup.children.entries.length; j++) {
+                        tChild = this.islandGroup.children.entries[j];
+                        //be sure the new island is away enough from the esiting ones
+                        if (Phaser.Math.Distance.Between(tChild.x, tChild.y, tIslandPoint.x, tIslandPoint.y) < 250) {
+                            //console.log("check island overlap", "OVERLAP");
+                            overlap = true;
+                            break;
+                        }
+                    }
+                    looper++;
+                    if (looper > 700) {
+                        cancel = true;
                         break;
                     }
+                } while (overlap == true)
+            } else {
+                tIslandPoint.setTo(this.loadGame.islands[i].x, this.loadGame.islands[i].y);
+                tIsland.setTexture('images', this.loadGame.islands[i].sprite);
+                tIsland.rotation = this.loadGame.islands[i].rotation;
+                tIsland.tribe = this.loadGame.islands[i].tribe;
+                tIsland.text.fill = this.tribes[tIsland.tribe].color;
+                tIsland.flag.tint = this.tribes[tIsland.tribe].color;
+                tIsland.scale = this.loadGame.islands[i].scale;
+                tIsland.halfWidth = tIsland.displayWidth / 2;
+                tIsland.halfHeight = tIsland.displayHeight / 2;
+                tIsland.population = this.loadGame.islands[i].population;
+                tIsland.populationMax = this.loadGame.islands[i].populationMax;
+                tIsland.text.text = tIsland.name + '\n' + Phaser.Math.CeilTo(tIsland.population, 0) + ' / ' + tIsland.populationMax;
+                tIsland.buildState = this.loadGame.islands[i].buildState;
+                if (tIsland.tribe > 0) {
+                    this.tribes[tIsland.tribe].newIsland(this, i);
                 }
-                looper++;
-                if (looper > 700) {
-                    cancel = true;
-                    break;
-                }
-            } while (overlap == true)
+            }
 
             if (cancel == true) {
                 //remove the Island and skip the rest
@@ -308,8 +341,8 @@ class cGame extends Phaser.Scene {
                 console.log('createIslands', 'islands overlap error');
             } else {
                 //set new position
-                tIsland.x = iPositionX;
-                tIsland.y = iPositionY;
+                tIsland.x = tIslandPoint.x;
+                tIsland.y = tIslandPoint.y;
                 tIsland.text.x = tIsland.x;
                 tIsland.text.y = tIsland.y;
                 tIsland.flag.x = tIsland.x;
@@ -334,6 +367,21 @@ class cGame extends Phaser.Scene {
                 //initialize
                 tIsland.completeBuild();
                 //*/
+                if (this.loadGame != undefined) {
+                    //tIsland.currentBuild = this.loadGame.islands[i].currentBuild;
+                    //tIsland.bubbleGroup.children.entries[0].setting = 0;
+                    for (j = 0; j < tIsland.bubbleGroup.children.entries.length; j++) {
+                        if (this.loadGame.islands[i].currentBuild == tIsland.bubbleGroup.children.entries[j].setting) {
+                            if (tIsland.currentBuild != this.loadGame.islands[i].currentBuild) { //sometimes currentBuild is already defined (autoBuild)
+                                tIsland.newBuild(tIsland.bubbleGroup.children.entries[j], null);
+                            }
+                            tIsland.currentBuildConstTime = this.loadGame.islands[i].currentBuildConstTime;
+                            tIsland.currentBuildConstMax = this.loadGame.islands[i].currentBuildConstMax;
+                            //tIsland.bubbleGroup.children.entries[0].setting = tIsland.bubbleGroup.children.entries[j].nr;
+                            break;
+                        }
+                    }
+                }
             }
         }
         //*/
@@ -550,19 +598,22 @@ class cGame extends Phaser.Scene {
         //tData.tribes = this.tribes.length;
         tData.islands = this.islandGroup.children.entries.length;
         tData.populationMax = 0;
-        tData.buildingsMax = this.islandGroup.children.entries.length * 10; //outpost to castle
+        tData.buildingsMax = 0;
         tData.tribes = new Array();
         for (var i = 0; i < this.tribes.length; i++) {
             tData.tribes.push({ name: "" });
             tData.tribes[i].name = this.tribes[i].name;
             tData.tribes[i].aiLevel = this.tribes[i].aiLevel;
-            tData.tribes[i].islands = 0;
+            tData.tribes[i].islands = this.tribes[i].islands.length;
             tData.tribes[i].population = 0;
             tData.tribes[i].buildings = 0;
+            if (tData.buildingsMax < tData.tribes[i].islands * this.gameData.buildingsMax) {
+                tData.buildingsMax = tData.tribes[i].islands * this.gameData.buildingsMax;
+            }
         }
         for (var i = 0; i < this.islandGroup.children.entries.length; i++) {
             //islands
-            tData.tribes[this.islandGroup.children.entries[i].tribe].islands += 1;
+            //tData.tribes[this.islandGroup.children.entries[i].tribe].islands += 1;
             //population
             tData.tribes[this.islandGroup.children.entries[i].tribe].population += this.islandGroup.children.entries[i].population;
             tData.populationMax += this.islandGroup.children.entries[i].populationMax;
@@ -597,7 +648,6 @@ class Tribe {
                 //console.log('removedColor' + indexColor, gameData.tribeColors, this.color);
                 scene.gameData.tribeColors.splice(indexColor, 1);
             }
-            this.color = this.color.replace("#", "0x");
         }
         this.islands = new Array();
         this.ai = false;
@@ -637,14 +687,14 @@ class Tribe {
 
             //init BuildBubbles
             tIsland.completeBuild();
-
-            //call the statistics
-            scene.getStatistics();
         }
         //assign the island to this tribe
         this.islands.push(islandNr);
         //update the map
-        if (scene.status == "playing") { game.events.emit('toMiniMapMsg', { type: 'newIsland' }); }
+        if (scene.status == "playing") {
+            scene.getStatistics();
+            game.events.emit('toMiniMapMsg', { type: 'newIsland' });
+        }
     };
 
     aiBuild(scene) {

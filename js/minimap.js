@@ -6,7 +6,8 @@ class cMiniMap extends Phaser.Scene {
         super("miniMap");
         this.aaaaa = "miniMap";
         this.gameSpeed = 1;
-        this.mute = false;
+        this.mute = true;
+        this.debug = false;
         this.tribeAi = 0;
         this.gameScene;
         this.infoContainer;
@@ -101,8 +102,8 @@ class cMiniMap extends Phaser.Scene {
                 break;
             case 'newIsland':
                 this.updateMiniMap();
-                this.checkEndGame();
                 this.saveGame();
+                this.checkEndGame();
                 break;
             case 'islandInfo':
                 game.events.emit('toSoundMsg', { type: 'btnClick' });
@@ -129,7 +130,7 @@ class cMiniMap extends Phaser.Scene {
 
         this.miniMap.clear();
 
-        //console.log('updateMiniMap', this.gameScene.tribes, this.gameScene.islandGroup, this.gameScene.cam);
+        if (this.debug == true) { console.log('updateMiniMap', this.gameScene.tribes, this.gameScene.islandGroup); }
         //segments are the parts of the circle around the minimap, to show wich player is the best
         segments.push({ "nr": 0, 'angle': 2 * Math.PI, 'color': this.gameScene.tribes[0].color });
 
@@ -194,7 +195,7 @@ class cMiniMap extends Phaser.Scene {
                 lstTribe = i;
             }
         }
-        if (activeTribes == 1 ) { this.endGame(lstTribe); }   //toDo: perhaps end game if player has lost, now end game when there is only one player left
+        if (activeTribes == 1) { this.endGame(lstTribe); }   //toDo: perhaps end game if player has lost, now end game when there is only one player left
         //console.log("checkEndGame");
     }
 
@@ -207,6 +208,7 @@ class cMiniMap extends Phaser.Scene {
         //end game (no update on play/doublespeed/pause)
         this.gameScene.status = "end";
         this.saveGameStats(winner);
+        localStorage.removeItem("saveGame");
         //show the statistics
         this.setInfoPlate({ type: 'statistics', statistics: this.gameScene.statistics, subtype: 'islands' });
         game.events.emit('toSoundMsg', { type: 'endGame' });
@@ -215,12 +217,41 @@ class cMiniMap extends Phaser.Scene {
     //save this actual game
     saveGame() {
         var saveObject = {
+            timestamp: Date.now(),
             tribes: this.gameScene.tribes,
-            islands: this.gameScene.islandGroup.children.entries,
-            statistics: this.gameScene.statistics
+            islands: new Array(),
+            statistics: new Array()
+        }
+        for (var i = 0; i < this.gameScene.islandGroup.children.entries.length; i++) {
+            saveObject.islands.push({
+                name: this.gameScene.islandGroup.children.entries[i].name,
+                buildState: this.gameScene.islandGroup.children.entries[i].buildState,
+                currentBuild: this.gameScene.islandGroup.children.entries[i].currentBuild,
+                currentBuildConstTime: this.gameScene.islandGroup.children.entries[i].currentBuildConstTime,
+                currentBuildConstMax: this.gameScene.islandGroup.children.entries[i].currentBuildConstMax,
+                nr: this.gameScene.islandGroup.children.entries[i].nr,
+                population: this.gameScene.islandGroup.children.entries[i].population,
+                populationMax: this.gameScene.islandGroup.children.entries[i].populationMax,
+                rotation: this.gameScene.islandGroup.children.entries[i].rotation,
+                scale: this.gameScene.islandGroup.children.entries[i].scale,
+                sprite: this.gameScene.islandGroup.children.entries[i].sprite,
+                tribe: this.gameScene.islandGroup.children.entries[i].tribe,
+                x: this.gameScene.islandGroup.children.entries[i].x,
+                y: this.gameScene.islandGroup.children.entries[i].y
+            });
+        }
+        for (var i = 0; i < this.gameScene.statistics.length; i++) {
+            saveObject.statistics.push({
+                buildingsMax: this.gameScene.statistics[i].buildingsMax,
+                islands: this.gameScene.statistics[i].islands,
+                populationMax: this.gameScene.statistics[i].populationMax,
+                time: this.gameScene.statistics[i].time,
+                tribes: this.gameScene.statistics[i].tribes
+            });
         };
-        localStorage.setItem("save", JSON.stringify(saveObject));
-        console.log("saveGame", JSON.parse(localStorage.getItem("saveGame")));
+        localStorage.setItem("saveGame", JSON.stringify(saveObject));
+        //console.log("saveGame", JSON.parse(localStorage.getItem("saveGame")));
+        if (this.debug == true) { console.log("saveGame", saveObject, JSON.parse(localStorage.getItem("saveGame"))); }
     }
 
     //updateRanking (games played total, ...)
@@ -503,25 +534,37 @@ class cMiniMap extends Phaser.Scene {
                 this.setInfoPlateSubType(x, y, data, graph);
                 break;
             case "exit":
-                //infotext
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: 'black' } } else { var tFont = { font: 'bold 28px Arial', fill: 'black' } }
-                this.newText(x + 70, y + 80, this.lang.mm_e_text[this.settings.lang], tFont, 0);
-                //quit Button
-                var button = this.newSprite(x + (data.width - 200) / 2, y + data.height - 80, "quit", 0, "images", "door", 0.5);
-                if (this.mobile == true) { button.scale = 1.4; } else { button.scale = 1.0 }
-                button.on('pointerup', function (x, y, data, graph, subheader, subTypeText) {
-                    this.scene.gameScene.status = "stop";
-                    this.scene.saveGameStats(0);
-                    this.scene.scene.start("mainMenu");
-                    this.scene.scene.stop("playGame");
-                    this.scene.scene.stop("miniMap");
-                });
                 if (this.gameScene.status == "end") {
                     this.gameScene.status = "stop";
                     this.scene.start("mainMenu");
                     this.scene.stop("playGame");
                     this.scene.stop("miniMap");
+                    return;
                 }
+                //infotext
+                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: 'black' } } else { var tFont = { font: 'bold 28px Arial', fill: 'black' } }
+                this.newText(x + 70, y + 80, this.lang.mm_e_text[this.settings.lang], tFont, 0);
+                //save Button
+                var button = this.newSprite(x + (data.width - 200) / 2 - 70, y + data.height - 80, "save", 0, "images", "save", 0.5);
+                if (this.mobile == true) { button.scale = 1.4; } else { button.scale = 1.0 }
+                button.on('pointerup', function (x, y, data, graph, subheader, subTypeText) {
+                    this.scene.gameScene.status = "stop";
+                    this.saveGame();
+                    this.scene.scene.start("mainMenu");
+                    this.scene.scene.stop("playGame");
+                    this.scene.scene.stop("miniMap");
+                });
+                //quit Button
+                var button = this.newSprite(x + (data.width - 200) / 2 + 70, y + data.height - 80, "quit", 0, "images", "door", 0.5);
+                if (this.mobile == true) { button.scale = 1.4; } else { button.scale = 1.0 }
+                button.on('pointerup', function (x, y, data, graph, subheader, subTypeText) {
+                    this.scene.gameScene.status = "stop";
+                    this.scene.saveGameStats(0);
+                    localStorage.removeItem("saveGame");
+                    this.scene.scene.start("mainMenu");
+                    this.scene.scene.stop("playGame");
+                    this.scene.scene.stop("miniMap");
+                });
                 break;
             case "aiHelp":
                 //infotext
@@ -567,7 +610,7 @@ class cMiniMap extends Phaser.Scene {
     }
 
     setInfoPlateSubType(x, y, data, graph) {
-        //console.log("setInfoPlateSubType", data);
+        if (this.debug == true) { console.log("setInfoPlateSubType", data); }
         graph.clear();
         var startTime = data.statistics[0].time;
         var endTime = data.statistics[data.statistics.length - 1].time;
@@ -582,7 +625,7 @@ class cMiniMap extends Phaser.Scene {
         switch (data.subtype) {
             case 'islands':
                 //now the data
-                var stepY = (data.height - 200) / data.statistics[0].islands;
+                var stepY = (data.height - 300) / data.statistics[0].islands;
                 for (var j = 1; j < data.statistics[0].tribes.length; j++) {
                     var i = 0;
                     var curvepoints = new Array();
@@ -597,12 +640,13 @@ class cMiniMap extends Phaser.Scene {
                 break;
             case 'population':
                 //get maxPopulation
+                //var stepY = data.statistics[data.statistics.length-1].populationMax;
                 var stepY = 0;
                 for (var j = 1; j < data.statistics[0].tribes.length; j++) {
                     var tempY = data.statistics[data.statistics.length - 1].tribes[j].population;
                     if (tempY > stepY) { stepY = tempY }
                 }
-                var stepY = (data.height - 200) / (stepY + 100);
+                stepY = (data.height - 300) / (stepY + 100);
                 for (var j = 1; j < data.statistics[0].tribes.length; j++) {
                     var i = 0;
                     var curvepoints = new Array();
@@ -617,12 +661,13 @@ class cMiniMap extends Phaser.Scene {
                 break;
             case 'buildings':
                 //get maxBuildings
-                var stepY = 0;
+                /*var stepY = 0;
                 for (var j = 1; j < data.statistics[0].tribes.length; j++) {
                     var tempY = data.statistics[data.statistics.length - 1].tribes[j].buildings;
                     if (tempY > stepY) { stepY = tempY }
-                }
-                var stepY = (data.height - 200) / (stepY);
+                }*/
+                var stepY = data.statistics[data.statistics.length - 1].buildingsMax;
+                stepY = (data.height - 400) / (stepY);
                 for (var j = 1; j < data.statistics[0].tribes.length; j++) {
                     var i = 0;
                     var curvepoints = new Array();
