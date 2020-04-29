@@ -1,4 +1,5 @@
-const version = '0.1.22';
+const version = '0.1.24';
+const debug = false;
 
 window.addEventListener('beforeinstallprompt', function (event) {
     //console.log('beforeinstallprompt', this);
@@ -35,5 +36,6 @@ window.onload = function () {
         }
         game = new Phaser.Game(config);
         game.version = version;
+        game.debug = debug;
     }, 1000)
 };

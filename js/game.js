@@ -7,26 +7,25 @@
  * https://gammafp.com/tools/
  * 
 ToDo:
-* save/load Game: localStorage/json (tribes, islands, maps, ships?)
-**/
+ * 
+ **/
 
 class cGame extends Phaser.Scene {
     constructor() {
         super("playGame");
         this.aaaaa = "playGame";
         this.status = "constructor";
-        this.debug = false;
         this.tribes = new Array();   //each tribe is stored in this group
-        this.islandGroup;    //each island
-        this.shipGroup;      // all active Ships are stored in this group
-        this.updateTimer = 0;    //Counter for the game_Update-fuction. used for the ship and build calls
-        this.plotter;            //used to paint the ship path (used if this.debug == true)
-        this.gameData;  //we get the gameData out of this JSON-File
-        this.gameSpeed = 1; //start-value
-        this.cam;       //the camera of this scene
-        this.controls;  //cursor-keys
+        this.islandGroup;           //each island
+        this.shipGroup;             // all active Ships are stored in this group
+        this.updateTimer = 0;       //Counter for the game_Update-fuction. used for the ship and build calls
+        this.plotter;               //used to paint the ship path (used if game.debug == true)
+        this.gameData;              //we get the gameData out of this JSON-File
+        this.gameSpeed = 1;         //start-value
+        this.cam;                   //the camera of this scene
+        this.controls;              //cursor-keys
         this.statistics = new Array();    //save all events (newIsland, buildprocess, polulation) for some statistics
-        this.loadGame;
+        this.loadGame;              //if != null, contails the loadGame data (islandposition, tribes, ships etc)
     }
 
     preload() {
@@ -35,6 +34,14 @@ class cGame extends Phaser.Scene {
 
     create(data) {
         //differ between new game and loadGame
+        this.loadGame = null;
+        if (data.type == "loadGame") {
+            this.loadGame = JSON.parse(localStorage.getItem("saveGame"));
+            this.loadGame.tribes.splice(0, 1);  //"empty"Tribe will be added at the tribe-startup section
+            data.tribes = this.loadGame.tribes;
+            data.islands = this.loadGame.islands.length;
+            if (game.debug) { console.log("loadGame", data, this.loadGame); }
+        }
         if (data == undefined) {    //backup, situation sould not happen
             console.log("game_create: data==undefined");
             data.type = "newGame";
@@ -43,19 +50,11 @@ class cGame extends Phaser.Scene {
             data.tribes.push({ name: "CPU_1", color: 0xd62d20, aiLevel: 1 });
             data.islands = 15;
             data.sound = 0;
-            data.loadGame = {};
         }
-        if (data.type == "loadGame") {
-            this.loadGame = JSON.parse(localStorage.getItem("saveGame"));
-            this.loadGame.tribes.splice(0, 1);  //"empty"Tribe will be added at the tribe-startup section
-            data.tribes = this.loadGame.tribes;
-            data.islands = this.loadGame.islands.length;
-            if (this.debug == true) { console.log("loadGame", data, this.loadGame); }
-        }
+
         //world-settings
         //set the bounds of the world
         //gamearea: 2000x2000=4000000px
-        //if (game.scale.height < game.scale.width) { aspectRatio = game.scale.height / game.scale.width; } else { aspectRatio = game.scale.width / game.scale.height; };
         var aspectRatio;
         aspectRatio = game.scale.height / game.scale.width;
         var tWidth = Math.sqrt(4000000 / aspectRatio);
@@ -69,14 +68,11 @@ class cGame extends Phaser.Scene {
         this.camZoomMax = this.camZoomMin * 3;
         this.cam.zoom = this.camZoomMax - this.camZoomMin;  //startzoom
 
-        //console.log("camera", aspectRatio, this.cam, 0, 0, tWidth, tHeight, "game", game.scale.width, game.scale.height);
-
         //load the gameData and gameSettings
         this.gameData = JSON.parse(JSON.stringify(this.cache.json.get('gameData')));    //json-parce(json.stringify -> copy of the original
         //backgroundimage
         var background = this.add.sprite(-150, 0, "background");
         background.setOrigin(0);
-
         if (background.width - 200 < this.cam.bounds.width) { background.scale = (this.cam.bounds.width / (background.width - 200) * 2); }
         if (background.height - 200 < this.cam.bounds.height) { background.scale = (this.cam.bounds.height / (background.height - 200) * 2); }
         var settings = JSON.parse(localStorage.getItem("settings"));
@@ -91,6 +87,9 @@ class cGame extends Phaser.Scene {
                 yoyo: true
             });
         }
+
+        //waypoint plotter 
+        if (game.debug) { this.plotter = this.add.graphics(); }
 
         //tribes
         this.tribes = new Array();   //each tribe is stored in this group
@@ -111,9 +110,17 @@ class cGame extends Phaser.Scene {
 
         //shipGroup
         this.shipGroup = this.add.group();
-
-        //waypoint plotter  //ToDo: remove at the final stage
-        if (this.debug == true) { this.plotter = this.add.graphics(); }
+        if (this.loadGame != undefined) {
+            for (var i = 0; i < this.loadGame.ships.length; i++) {
+                this.islandGroup.children.entries[this.loadGame.ships[i].origin].setSails(this.loadGame.ships[i].aim);
+                this.shipGroup.children.entries[this.shipGroup.children.entries.length - 1].tribe = this.loadGame.ships[i].tribe;
+                this.shipGroup.children.entries[this.shipGroup.children.entries.length - 1].speed = this.loadGame.ships[i].speed;
+                this.shipGroup.children.entries[this.shipGroup.children.entries.length - 1].attack = this.loadGame.ships[i].attack;
+                this.shipGroup.children.entries[this.shipGroup.children.entries.length - 1].defence = this.loadGame.ships[i].defence;
+                this.shipGroup.children.entries[this.shipGroup.children.entries.length - 1].dist = this.loadGame.ships[i].dist;
+                this.shipGroup.children.entries[this.shipGroup.children.entries.length - 1].population = this.loadGame.ships[i].population;
+            }
+        }
 
         //input for camzoom -> cursor-keys & mousewheel
         var cursors = this.input.keyboard.createCursorKeys();
@@ -145,7 +152,7 @@ class cGame extends Phaser.Scene {
         }, this);
 
         //set the camera to the start-island
-        if (this.tribes[1].length > 0) { this.cam.centerOn(this.islandGroup.children.entries[this.tribes[1].islands[0]].x, this.islandGroup.children.entries[this.tribes[1].islands[0]].y); }
+        if (this.tribes[1].islands.length > 0) { this.cam.centerOn(this.islandGroup.children.entries[this.tribes[1].islands[0]].x, this.islandGroup.children.entries[this.tribes[1].islands[0]].y); }
 
         //swipe/pinch
         var gestures = this.rexGestures.add.pinch();
@@ -174,9 +181,10 @@ class cGame extends Phaser.Scene {
 
         this.statistics = new Array();
         if (this.loadGame == undefined) {
-            this.getStatistics();
+            this.getStatistics("newIsland");
         } else {
             this.statistics = this.loadGame.statistics;
+            this.getStatistics("resume");
         }
         this.status = "playing";
     }
@@ -189,7 +197,16 @@ class cGame extends Phaser.Scene {
                 game.events.emit('toMiniMapMsg', { type: 'init', gameSpeed: this.gameSpeed, tribeAi: this.tribes[1].ai });
                 break;
             case 'update':
-                if ("gameSpeed" in data) { this.gameSpeed = data.gameSpeed };
+                if ("gameSpeed" in data) {
+                    if (this.gameSpeed != data.gameSpeed) {
+                        this.gameSpeed = data.gameSpeed;
+                        if (data.gameSpeed == 0) {
+                            this.getStatistics("pause");
+                        } else if (data.gameSpeed == 1) {
+                            this.getStatistics("resume");
+                        }
+                    };
+                };
                 if ("tribeAi" in data) { this.tribes[1].ai = data.tribeAi };
                 break;
             default:
@@ -293,8 +310,8 @@ class cGame extends Phaser.Scene {
                 var looper = 0;
                 var cancel = false;
                 do {
-                    var iPositionX = Phaser.Math.Between(tIsland.width, this.cam.bounds.width - tIsland.width);
-                    var iPositionY = Phaser.Math.Between(tIsland.height, this.cam.bounds.height - tIsland.height);
+                    var iPositionX = Phaser.Math.Between(250, this.cam.bounds.width - 250);
+                    var iPositionY = Phaser.Math.Between(250, this.cam.bounds.height - 250);
                     tIslandPoint.setTo(iPositionX, iPositionY);
                     //check if islands overlap
                     overlap = false;
@@ -307,6 +324,16 @@ class cGame extends Phaser.Scene {
                             break;
                         }
                     }
+                    //leave space for minimap
+                    if (game.mobile == true) {
+                        var rect = new Phaser.Geom.Rectangle(this.cam.bounds.width - 650, this.cam.bounds.height - 650, 650, 650);
+                    } else {
+                        var rect = new Phaser.Geom.Rectangle(this.cam.bounds.width - 450, this.cam.bounds.height - 450, 450, 450);
+                    }
+                    if (rect.contains(iPositionX, iPositionY)) {
+                        overlap = true;
+                    }
+
                     looper++;
                     if (looper > 700) {
                         cancel = true;
@@ -437,7 +464,7 @@ class cGame extends Phaser.Scene {
         var tIsland;    //temp Island
         var maxDist;    //hole distance between start and endpoint of points
         var looper = false; //loop the calculation until there is no intersection
-
+        var counter = 0;
 
         points[0] = ({ 'x': startX, 'y': startY, 'dist': 0 });    //set startpoint
         maxDist = 0;
@@ -544,6 +571,11 @@ class cGame extends Phaser.Scene {
             maxDist += newWP.dist;
             waySection.x1 = newWP.x
             waySection.y1 = newWP.y;
+            counter++
+            if (counter > 100) {
+                console.log("setShipPath_error", startX, startY, aimIsland, points);
+                break;
+            }
         } while (looper == true);
 
         //let the ship end a little bit before the island
@@ -580,7 +612,7 @@ class cGame extends Phaser.Scene {
             //calc the angle, so the ship faces the correct direction (- 1/2 pi, because the ship looks up at first)
             waypoints[i].angle = Math.atan2(waypoints[i + 1].y - waypoints[i].y, waypoints[i + 1].x - waypoints[i].x) + 0.5 * Math.PI;
         }
-        if (this.debug == true) {
+        if (game.debug) {
             this.plotter.clear();
             this.plotter.lineStyle(2, 0xff0000, 1);
             curve.draw(this.plotter, 64);
@@ -591,11 +623,10 @@ class cGame extends Phaser.Scene {
     };
 
     //saveRoundStatistics
-    getStatistics() {
-        //console.log("getStatistics");
+    getStatistics(type = "newIsland") {
         var tData = new Array();
         tData.time = this.time.now;
-        //tData.tribes = this.tribes.length;
+        tData.type = type;
         tData.islands = this.islandGroup.children.entries.length;
         tData.populationMax = 0;
         tData.buildingsMax = 0;
@@ -612,10 +643,8 @@ class cGame extends Phaser.Scene {
             }
         }
         for (var i = 0; i < this.islandGroup.children.entries.length; i++) {
-            //islands
-            //tData.tribes[this.islandGroup.children.entries[i].tribe].islands += 1;
             //population
-            tData.tribes[this.islandGroup.children.entries[i].tribe].population += this.islandGroup.children.entries[i].population;
+            tData.tribes[this.islandGroup.children.entries[i].tribe].population += Phaser.Math.FloorTo(this.islandGroup.children.entries[i].population, -2);  //2 decimals
             tData.populationMax += this.islandGroup.children.entries[i].populationMax;
             //buildings
             var u = this.islandGroup.children.entries[i].buildState;
@@ -623,14 +652,44 @@ class cGame extends Phaser.Scene {
             uCount = ((uCount + (uCount >> 3)) & 0o30707070707) % 63;
             tData.tribes[this.islandGroup.children.entries[i].tribe].buildings += uCount;
         }
+        if (this.statistics.length > 0) {
+            tData.duration = tData.time - this.statistics[this.statistics.length - 1].time;
+        } else { tData.duration = 0; }
+        //add statistic
         this.statistics.push(tData);
-        //console.log("getStatistics", tData, this.statistics);
 
-    }
+        //if there are too many entries, delete half of it to save memory
+        if (this.statistics.length > 50) {
+            var durTotal = 0;
+            var step = 0;
+            var duration = 0;
+            for (var i = 0; i < this.statistics.length; i++) {
+                if (this.statistics[i].type != "resume") { durTotal += this.statistics[i].duration; }
+            }
+            step = durTotal / 10;
+            duration = this.statistics[0].duration;
+            for (var i = 1; i < this.statistics.length - 1; i++) {
+                if (this.statistics[i].type != "resume") {
+                    duration += this.statistics[i].duration;
+                    if (duration > step) {
+                        duration -= step;
+                    } else {
+                        this.statistics[i + 1].duration += this.statistics[i].duration;
+                        //console.log("statistics_splice", this.statistics[i]);
+                        this.statistics.splice(i, 1);
+                        i--;
+                    }
+                } else {
+                    this.statistics.splice(i, 1);
+                    i--;
+                }
+            }
+        }
 
+        if (game.debug) { console.log("getStatistics", tData, this.statistics); }
 
-};
-
+    };
+}
 
 //Tribe
 class Tribe {
@@ -692,7 +751,7 @@ class Tribe {
         this.islands.push(islandNr);
         //update the map
         if (scene.status == "playing") {
-            scene.getStatistics();
+            scene.getStatistics("newIsland");
             game.events.emit('toMiniMapMsg', { type: 'newIsland' });
         }
     };
@@ -896,7 +955,7 @@ class Island extends Phaser.GameObjects.Sprite {
     constructor(config) {
         super(config.scene, config.x, config.y, 'images', tsprite);
 
-        var tsprite = 'island' + Phaser.Math.Between(0, 5);
+        var tsprite = 'island' + Phaser.Math.Between(0, 11);
         Phaser.GameObjects.Sprite.call(this, config.scene, config.x, config.y, 'images', tsprite);
         //set some default settings
         this.setOrigin(0.5, 0.5);
@@ -928,8 +987,7 @@ class Island extends Phaser.GameObjects.Sprite {
         this.text.fontSize = 12;
         this.text.fill = '#ffffff';
         //this.text.setShadow(2, 2, 'rgba(1,1,1,1)', 2);
-        this.text.stroke = '#000000';
-        this.text.strokeThickness = 4;
+        this.text.setStroke('#000', 4);
         this.flag = config.scene.add.sprite(this.x, this.y, 'images', 'flag');
         this.flag.setOrigin(0, 1);
         this.flag.scale = 0.6;
@@ -995,7 +1053,7 @@ class Island extends Phaser.GameObjects.Sprite {
         //reset the AI counter
         this.scene.tribes[this.tribe].aiCounter *= -1;
         //show the build-Bubbles    // Debug: Replace:this.tribe != 0 => this.tribe == 1    //Show the buildBubbles from the enemies too
-        if (this.tribe == 1 || (this.tribe != 0 && this.scene.debug == true)) {
+        if (this.tribe == 1 || (this.tribe != 0 && game.debug == true)) {
             visCounter = 0;
             //calculate the new bubble positions
             for (i = 1; i < this.bubbleGroup.children.entries.length; i++) {
@@ -1117,7 +1175,7 @@ class Island extends Phaser.GameObjects.Sprite {
                 this.bubbleGroup.children.entries[0].x = tBubble.x;
                 this.bubbleGroup.children.entries[0].y = tBubble.y + tBubble.height / 2 - 4;
                 this.bubbleGroup.children.entries[0].setting = tBubble.nr;
-                if (this.tribe == 1 || this.debug == true) {
+                if (this.tribe == 1 || game.debug == true) {
                     this.bubbleGroup.children.entries[0].visible = true;
                 }
                 tBubble.alpha = 0.8;
@@ -1249,8 +1307,7 @@ class Island extends Phaser.GameObjects.Sprite {
         tShip.y = this.bubbleGroup.children.entries[7].y;
         tShip.rotation = this.bubbleGroup.children.entries[7].rotation;
         tShip.dist = 0;
-        this.population /= 2;
-        tShip.population = this.population;
+        tShip.population = this.population / 2;
         tShip.attack = this.attack;
         tShip.tribe = this.tribe;
         tShip.origin = this.nr;
@@ -1259,31 +1316,37 @@ class Island extends Phaser.GameObjects.Sprite {
         //rotate the Ship to the nearest angle (=> max +-180°)
         tShip.waypoints[0].angle = tShip.rotation + Math.atan2(Math.sin(tShip.waypoints[0].angle - tShip.rotation), Math.cos(tShip.waypoints[0].angle - tShip.rotation));
 
-        //move the ship slowly to the starting position
-        //rotate the ship slowly to the start-angle
-        this.scene.tweens.add({
-            targets: tShip,
-            x: tShip.waypoints[0].x,
-            y: tShip.waypoints[0].y,
-            rotation: tShip.waypoints[0].angle,
-            duration: 1000,
-            ease: 'Sine.easeOut',
-            repeat: 0,            // -1: infinity
-            yoyo: false,
-            onComplete: function (tween, targets) {
-                //console.log('shipSpeed', this, tween, targets);
-                targets[0].isSailing = true;
-            }
-        });
+        if (this.scene.status == "constructor") {
+            //loadGame - ship exists, position will be loaded afterwards (create-function)
+            tShip.isSailing = true;
+        } else {
+            //move the ship slowly to the starting position
+            //rotate the ship slowly to the start-angle
+            this.scene.tweens.add({
+                targets: tShip,
+                x: tShip.waypoints[0].x,
+                y: tShip.waypoints[0].y,
+                rotation: tShip.waypoints[0].angle,
+                duration: 1000,
+                ease: 'Sine.easeOut',
+                repeat: 0,            // -1: infinity
+                yoyo: false,
+                onComplete: function (tween, targets) {
+                    //console.log('shipSpeed', this, tween, targets);
+                    targets[0].isSailing = true;
+                }
+            });
 
-        //reset the buildState and remove the portShip & SteeringWeel bubble
-        this.buildState ^= this.bubbleGroup.children.entries[7].setting;
-        this.bubbleGroup.children.entries[6].setting = 0; //steeringweel
-        this.bubbleGroup.children.entries[6].selected = false;
-        this.bubbleGroup.children.entries[6].clearTint();
-        this.bubbleGroup.children.entries[7].setting = 0; //portShip
-        this.scene.tribes[this.tribe].shipCounter--;
-        this.completeBuild();
+            this.population /= 2;
+            //reset the buildState and remove the portShip & SteeringWeel bubble
+            this.buildState ^= this.bubbleGroup.children.entries[7].setting;
+            this.bubbleGroup.children.entries[6].setting = 0; //steeringweel
+            this.bubbleGroup.children.entries[6].selected = false;
+            this.bubbleGroup.children.entries[6].clearTint();
+            this.bubbleGroup.children.entries[7].setting = 0; //portShip
+            this.scene.tribes[this.tribe].shipCounter--;
+            this.completeBuild();
+        }
     };
 
     click() {
@@ -1319,8 +1382,6 @@ class Bubble extends Phaser.GameObjects.Sprite {
     }
 }
 ;
-
-
 
 
 //Ship

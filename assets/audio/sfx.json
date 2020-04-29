@@ -3,6 +3,13 @@
 		"./assets/audio/sfx.mp3"
 	],
 	"spritemap": {
+		"none": {
+			"start": 2.5,
+			"end": 2.7,
+			"loop": false,
+			"orgName": "nothing",
+			"source": "404"
+		},
 		"bell": {
 			"start": 0,
 			"end": 2.11,

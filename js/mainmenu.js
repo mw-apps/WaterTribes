@@ -5,12 +5,10 @@ class cMainMenu extends Phaser.Scene {
     constructor() {
         super("mainMenu");
         this.aaaaa = "mainMenu";
-        this.debug = false;
         this.infoContainer;
         this.spriteGroup;
         this.textGroup;
         this.plate;
-        this.mobile = false;
         this.gameData = {};
         this.newGameSettings = {};
         this.lang = {};
@@ -46,11 +44,7 @@ class cMainMenu extends Phaser.Scene {
         setTimeout(function () { this.setInfoPlate({ type: "menu" }); }.bind(this), 200);
         //show Version-Info:
         this.newText(5, 5, "Version: " + game.version, { font: '20px Arial', fill: "black" }, 0, false);
-        //differ between mobile and desktop (action-button size)
-        if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
-            this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle) {
-            this.mobile = true;
-        }
+
         //PWA support Bubble
         if (this.sys.game.device.os.android || this.sys.game.device.os.chromeOS || this.sys.game.device.os.iPad ||
             this.sys.game.device.os.iPhone || this.sys.game.device.os.kindle ||
@@ -166,7 +160,7 @@ class cMainMenu extends Phaser.Scene {
         this.plate.fillRoundedRect(x + 40, y + 60, data.width, 8, 4);
         //back button
         var backButton = this.newSprite(x, y + data.height / 2 - 50, "plateBack", 0, "images", "back", 0.1);
-        if (this.mobile == true) { backButton.scale = 1.7; } else { backButton.scale = 1.2 }
+        if (game.mobile == true) { backButton.scale = 1.7; } else { backButton.scale = 1.2 }
         backButton.on('pointerup', function (data) {
             if (backButton.tween != undefined) { backButton.tween.stop(); }
             this.tweenInfoPlate(-data.width, 700, { type: data.backTarget });
@@ -189,7 +183,7 @@ class cMainMenu extends Phaser.Scene {
             case 'overrideSaveGame': var tHeader = this.lang.menu_overrSG_header[this.settings.lang]; break;
             default: console.log("setInfoPlate data.type error", data.type);
         }
-        if (this.mobile == true) { var tFont = { font: 'bold 45px Arial', fill: "black" } } else { var tFont = { font: 'bold 35px Arial', fill: "black" } }
+        if (game.mobile == true) { var tFont = { font: 'bold 45px Arial', fill: "black" } } else { var tFont = { font: 'bold 35px Arial', fill: "black" } }
         this.newText(x + 40, y + 18, tHeader, tFont, 0);
 
         //differ between the different types of information
@@ -217,7 +211,7 @@ class cMainMenu extends Phaser.Scene {
                         this.tweenInfoPlate(-data.width, 700, { type: subTypeText });
                     }.bind(this, data, subTypeText));
                     //ButtonText
-                    if (this.mobile == true) { var tFont = { font: 'bold 40px Arial', fill: "black" } } else { var tFont = { font: 'bold 30px Arial', fill: "black" } }
+                    if (game.mobile == true) { var tFont = { font: 'bold 40px Arial', fill: "black" } } else { var tFont = { font: 'bold 30px Arial', fill: "black" } }
                     this.newText(x + 50 + (data.width - 300) / 2 + tX, y + 130 + i * 80, subText, tFont, 0.5);
                 }
                 break;
@@ -229,7 +223,7 @@ class cMainMenu extends Phaser.Scene {
                     return;
                 }
                 //Text
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                if (game.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
                 this.newText(x + 80, y + 80, this.lang.menu_nG_player[this.settings.lang], tFont, 0);
                 this.newText(x + 280, y + 80, this.lang.menu_nG_color[this.settings.lang], tFont, 0);
                 this.newText(x + 480, y + 80, this.lang.menu_nG_level[this.settings.lang], tFont, 0);
@@ -241,7 +235,7 @@ class cMainMenu extends Phaser.Scene {
                     this.newGameAddPlayer(x, y, i, 70);
                 }
                 //Text
-                //if (this.mobile == true) { var tFont = { font: 'bold 35x Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                //if (game.mobile == true) { var tFont = { font: 'bold 35x Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
                 this.newText(x + 80, y + 140 + this.gameData.tribeMax * 70, this.lang.menu_nG_islands[this.settings.lang], tFont, 0);
                 //separator
                 this.plate.fillStyle('0x7bb4f2', 1);
@@ -261,10 +255,10 @@ class cMainMenu extends Phaser.Scene {
                     this.scene.newGameSettings.islands = slider.textObj.text;
                     slider.calcNewPosition();
                 });
-                //if (this.mobile == true) { var tFont = { font: 'bold 35x Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                //if (game.mobile == true) { var tFont = { font: 'bold 35x Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
                 var sliderText = this.newText(x + 430, y + 220 + this.gameData.tribeMax * 70, this.newGameSettings.islands, tFont, 0.5);
                 var slider = this.newSprite(x + 80, y + 220 + this.gameData.tribeMax * 70, "slider", 0, "images", 'emptyBubble', 0.5);
-                if (this.mobile == true) { slider.scale = 0.5; } else { slider.scale = 0.3; }
+                if (game.mobile == true) { slider.scale = 0.5; } else { slider.scale = 0.3; }
                 slider.textObj = sliderText;
                 this.input.setDraggable(slider);
                 slider.input.draggable = true;
@@ -290,7 +284,7 @@ class cMainMenu extends Phaser.Scene {
 
                 //remove last enemy
                 var remEnemy = this.newSprite(x + 70, y + 165 + (i - 1) * 70, "removeEnemy", 0, "images", "remove", 0.5);
-                if (this.mobile == true) { remEnemy.scale = 0.6; } else { remEnemy.scale = 0.4; }
+                if (game.mobile == true) { remEnemy.scale = 0.6; } else { remEnemy.scale = 0.4; }
                 remEnemy.on('pointerup', function (remEnemy, slider) {
                     this.newGameSettings.tribes.splice(this.newGameSettings.tribes.length - 1, 1);
                     //console.log("remEnemy", this, remEnemy, this.newGameSettings.tribes);
@@ -334,7 +328,7 @@ class cMainMenu extends Phaser.Scene {
                 if (this.newGameSettings.tribes.length == 2) { remEnemy.visible = false } else { remEnemy.visible = true }
                 //add enemy
                 var addEnemy = this.newSprite(x + 70, y + 165 + i * 70, "addEnemy", 0, "images", "add", 0.5);
-                if (this.mobile == true) { addEnemy.scale = 0.6; } else { addEnemy.scale = 0.4; }
+                if (game.mobile == true) { addEnemy.scale = 0.6; } else { addEnemy.scale = 0.4; }
                 addEnemy.on('pointerup', function (addEnemy, slider) {
                     var i = this.newGameSettings.tribes.length;
                     //console.log("addEnemy", this, addEnemy, this.newGameSettings.tribes, this.gameData.tribeMax);
@@ -364,10 +358,11 @@ class cMainMenu extends Phaser.Scene {
                 remEnemy.addEnemy = addEnemy;
                 addEnemy.remEnemy = remEnemy;
                 if (this.newGameSettings.tribes.length == this.gameData.tribeMax) { addEnemy.visible = false } else { addEnemy.visible = true }
+                this.newGameSettings.type = "newGame";
 
                 //start new Game
                 var button = this.newSprite(x + 100, y + data.height - 60, "startGame", 0, "images", 'anchor', 0.5);
-                if (this.mobile == true) { button.scale = 0.8; } else { button.scale = 0.6; }
+                if (game.mobile == true) { button.scale = 0.8; } else { button.scale = 0.6; }
                 button.on('pointerup', function (button, data) {
                     game.events.emit('toSoundMsg', { type: 'startGame' });
                     localStorage.setItem("defaultNewGame", JSON.stringify(this.newGameSettings));
@@ -375,7 +370,7 @@ class cMainMenu extends Phaser.Scene {
                     this.scene.stop("mainMenu");
                 }.bind(this, button, data));
                 //StartGame
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                if (game.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
                 this.newText(button.x + button.displayWidth + 50, button.y, this.lang.menu_nG_start[this.settings.lang], tFont, 0.5);
                 break;
             case 'statistics':
@@ -397,14 +392,14 @@ class cMainMenu extends Phaser.Scene {
                     this.lang.menu_s_longestWin[this.settings.lang] + ": " + (saveObject.longestWin / 60000).toFixed(2) + "min\n" +
                     this.lang.menu_s_longestLoss[this.settings.lang] + ": " + (saveObject.longestLoss / 60000).toFixed(2) + "min";
 
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                if (game.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
                 this.newText(x + 60, y + 90, gInfo, tFont, 0);
                 break;
             case 'options':
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                if (game.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
                 //tweenWaveMotion
                 var button = this.newSprite(x + 100, y + 120, "options", 0, "images", 'waveMotion', 0.5);
-                if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+                if (game.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
                     this.scene.settings.waveMotion = !this.scene.settings.waveMotion;
                     localStorage.setItem("settings", JSON.stringify(this.scene.settings));
@@ -423,7 +418,7 @@ class cMainMenu extends Phaser.Scene {
                 this.plate.fillRoundedRect(x + 80, y + 215, data.width, 6, 2);
                 //music
                 var button = this.newSprite(x + 100, y + 280, "options", 1, "images", 'sound', 0.5);
-                if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+                if (game.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
                     this.scene.settings.music = !this.scene.settings.music;
                     localStorage.setItem("settings", JSON.stringify(this.scene.settings));
@@ -438,7 +433,7 @@ class cMainMenu extends Phaser.Scene {
                 this.newText(x + 150, y + 260, this.lang.menu_o_music[this.settings.lang], tFont, 0);
                 //sfx
                 var button = this.newSprite(x + 100, y + 360, "options", 2, "images", 'sound', 0.5);
-                if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+                if (game.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
                     this.scene.settings.sfx = !this.scene.settings.sfx;
                     localStorage.setItem("settings", JSON.stringify(this.scene.settings));
@@ -458,7 +453,7 @@ class cMainMenu extends Phaser.Scene {
                 this.plate.fillRoundedRect(x + 80, y + 455, data.width, 6, 2);
                 //en
                 var button = this.newSprite(x + 100, y + 520, "optionsLanguage", 0, "images", 'emptyBubble', 0.5);
-                if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+                if (game.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
                     this.scene.settings.lang = "en";
                     localStorage.setItem("settings", JSON.stringify(this.scene.settings));
@@ -473,7 +468,7 @@ class cMainMenu extends Phaser.Scene {
                 this.newText(x + 150, y + 500, this.lang.menu_o_lang0[this.settings.lang], tFont, 0);
                 //de
                 var button = this.newSprite(x + 100, y + 600, "optionsLanguage", 1, "images", 'emptyBubble', 0.5);
-                if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+                if (game.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
                     this.scene.settings.lang = "de";
                     localStorage.setItem("settings", JSON.stringify(this.scene.settings));
@@ -489,7 +484,7 @@ class cMainMenu extends Phaser.Scene {
                 break;
             case 'credits':
                 //Text
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                if (game.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
                 this.newText(x + 60, y + 90, this.lang.menu_c_text[this.settings.lang], tFont, 0);
                 break;
             case 'instruction':
@@ -506,7 +501,7 @@ class cMainMenu extends Phaser.Scene {
                             //console.log(i, row, stepX);
                         }
                         var button = this.newSprite(x + 90 + stepX, y + 120 + row * stepY, "techBubble", i, "images", this.gameData.techObjects[i].textureName, 0.5);
-                        if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+                        if (game.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                         button.on('pointerup', function () {
                             this.scene.setInfoPlate({ type: "instruction", bubbleId: this.nr });
                         });
@@ -514,7 +509,7 @@ class cMainMenu extends Phaser.Scene {
                     }
                     var button = this.newSprite(x + 60, button.y + 90, "bubbles", 0, "images", this.gameData.techObjects[data.bubbleId].textureName, 0);
                     //header
-                    if (this.mobile == true) { var tFont = { font: 'bold 45px Arial', fill: "black" } } else { var tFont = { font: 'bold 35px Arial', fill: "black" } };
+                    if (game.mobile == true) { var tFont = { font: 'bold 45px Arial', fill: "black" } } else { var tFont = { font: 'bold 35px Arial', fill: "black" } };
                     var iText = this.newText(button.x + button.width + 20, button.y, this.lang.techobj_id[data.bubbleId].name[this.settings.lang], tFont, 0);
                     //separator
                     this.plate.fillStyle('0x7bb4f2', 1);
@@ -536,12 +531,12 @@ class cMainMenu extends Phaser.Scene {
                         this.lang.techobj_addPopGrowth[this.settings.lang] + ": +" + this.gameData.techObjects[data.bubbleId].addPopGrowth + "\n" +
                         this.lang.techobj_addDefence[this.settings.lang] + ": +" + this.gameData.techObjects[data.bubbleId].addDefence + "\n" +
                         this.lang.techobj_addAttack[this.settings.lang] + ": +" + this.gameData.techObjects[data.bubbleId].addAttack
-                    if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black", wordWrap: { width: this.scale.width - iText.x - 50 } } } else { var tFont = { font: 'bold 28px Arial', fill: "black", wordWrap: { width: this.scale.width - iText.x - 50 } } };
+                    if (game.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black", wordWrap: { width: this.scale.width - iText.x - 50 } } } else { var tFont = { font: 'bold 28px Arial', fill: "black", wordWrap: { width: this.scale.width - iText.x - 50 } } };
                     var iText = this.newText(iText.x, iText.y + iText.height + 30, gInfo, tFont, 0);
                     break;
                 }
                 //Text
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black", wordWrap: { width: data.width - 300 } } } else { var tFont = { font: 'bold 28px Arial', fill: "black", wordWrap: { width: data.width - 300 } } };
+                if (game.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black", wordWrap: { width: data.width - 300 } } } else { var tFont = { font: 'bold 28px Arial', fill: "black", wordWrap: { width: data.width - 300 } } };
                 var iText = this.newText(x + 60, y + 90, this.lang.menu_i_text[this.settings.lang], tFont, 0);
                 //water
                 this.plate.fillStyle('0x0988fc', 1);
@@ -551,7 +546,7 @@ class cMainMenu extends Phaser.Scene {
                 backButton.tween = tween;
                 //next
                 var button = this.newSprite(iText.x + iText.width / 2, y + data.height - 40, "next", 0, "images", 'next', 0.5);
-                if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+                if (game.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
                     if (backButton.tween != undefined) { backButton.tween.stop(); }
                     this.setInfoPlate({ type: "instruction", bubbleId: 0 });
@@ -560,13 +555,13 @@ class cMainMenu extends Phaser.Scene {
             case 'loadGame':
                 //Text
                 var loadGame = JSON.parse(localStorage.getItem("saveGame"));
-                if (this.debug == true) { console.log("loadGame", loadGame); }
+                if (game.debug) { console.log("loadGame", loadGame); }
                 if (loadGame == undefined) {
                     this.removeInfoPlate();
                     this.setInfoPlate({ type: "menu" });
                     return;
                 }
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black", wordWrap: { width: data.width - 300 } } } else { var tFont = { font: 'bold 28px Arial', fill: "black", wordWrap: { width: data.width - 300 } } };
+                if (game.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black", wordWrap: { width: data.width - 300 } } } else { var tFont = { font: 'bold 28px Arial', fill: "black", wordWrap: { width: data.width - 300 } } };
                 var iText = this.newText(x + 60, y + 90, this.lang.menu_lG_text[this.settings.lang], tFont, 0);
                 //get saveGame infos:
                 var tText = new Date(loadGame.timestamp).toLocaleDateString(this.settings.lang) + " " + new Date(loadGame.timestamp).toLocaleTimeString(this.settings.lang) + "\n" +
@@ -580,24 +575,24 @@ class cMainMenu extends Phaser.Scene {
 
                 //start Game
                 var button = this.newSprite(x + 100, iText.y + iText.height + 30, "startGame", 0, "images", 'anchor', 0.5);
-                if (this.mobile == true) { button.scale = 0.8; } else { button.scale = 0.6; }
+                if (game.mobile == true) { button.scale = 0.8; } else { button.scale = 0.6; }
                 button.on('pointerup', function (button, data) {
                     game.events.emit('toSoundMsg', { type: 'startGame' });
                     this.scene.start("playGame", { type: 'loadGame' });
                     this.scene.stop("mainMenu");
                 }.bind(this, button, data));
                 //StartGame
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
+                if (game.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } };
                 this.newText(button.x + button.displayWidth + 50, button.y, this.lang.menu_nG_start[this.settings.lang], tFont, 0.5);
                 break;
             case 'overrideSaveGame':
                 //there is a saveGame in the storage, ask whether the game should be overwritten or not
                 //Text
-                if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black", wordWrap: { width: data.width - 300 } } } else { var tFont = { font: 'bold 28px Arial', fill: "black", wordWrap: { width: data.width - 300 } } };
+                if (game.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black", wordWrap: { width: data.width - 300 } } } else { var tFont = { font: 'bold 28px Arial', fill: "black", wordWrap: { width: data.width - 300 } } };
                 var iText = this.newText(x + 60, y + 90, this.lang.menu_overrSG_text[this.settings.lang], tFont, 0);
                 //check
                 var button = this.newSprite(iText.x + iText.width / 2 - 50, iText.y + iText.height + 50, "check", 0, "images", 'check', 0.5);
-                if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+                if (game.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
                     //update game stats
                     var loadGame = JSON.parse(localStorage.getItem("saveGame"));
@@ -627,7 +622,7 @@ class cMainMenu extends Phaser.Scene {
                 }.bind(this));
                 //cancel
                 var button = this.newSprite(iText.x + iText.width / 2 + 50, iText.y + iText.height + 50, "cancel", 1, "images", 'cancel', 0.5);
-                if (this.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
+                if (game.mobile == true) { button.scale = 0.7; } else { button.scale = 0.5; }
                 button.on('pointerup', function () {
                     this.tweenInfoPlate(-data.width, 700, { type: data.backTarget });
                 }.bind(this));
@@ -870,15 +865,15 @@ class cMainMenu extends Phaser.Scene {
         }
     }
     newGameAddPlayer(x, y, index, step) {
-        if (this.debug == true) { console.log("newGameAddPlayer", this.newGameSettings.tribes[index]); }
+        if (game.debug) { console.log("newGameAddPlayer", this.newGameSettings.tribes[index]); }
         //Playername
-        if (this.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } }
+        if (game.mobile == true) { var tFont = { font: 'bold 35px Arial', fill: "black" } } else { var tFont = { font: 'bold 28px Arial', fill: "black" } }
         var pName = this.newText(x + 110, y + 150 + index * step, this.newGameSettings.tribes[index].name, tFont, 0);
         pName.name = "pName";
         pName.nr = index;
         //colorpicker
         var button = this.newSprite(x + 320, y + 170 + index * step, "colorpicker", index, "images", "emptyBubble", 0.5);
-        if (this.mobile == true) { button.scale = 0.6; } else { button.scale = 0.4; }
+        if (game.mobile == true) { button.scale = 0.6; } else { button.scale = 0.4; }
         button.setTintFill(this.newGameSettings.tribes[index].color);
         button.on('pointerup', function (button) {
             //console.log("colorchange", this, button);
@@ -889,7 +884,7 @@ class cMainMenu extends Phaser.Scene {
             for (var i = 0; i < icolors; i++) {
                 Phaser.Geom.Line.SetToAngle(iLine, button.x, button.y, i * 2 * Math.PI / icolors, button.displayWidth / 2 + button.displayWidth / 2);
                 var buttonNew = this.newSprite(iLine.x2, iLine.y2, "colorpickerNew", button.nr, "images", "emptyBubble", 0.5);
-                if (this.mobile == true) { buttonNew.scale = 0.6; } else { buttonNew.scale = 0.4; }
+                if (game.mobile == true) { buttonNew.scale = 0.6; } else { buttonNew.scale = 0.4; }
                 buttonNew.setTintFill(this.gameData.tribeColors[i]);
                 buttonNew.color = this.gameData.tribeColors[i];
                 buttonNew.parentButton = button;
@@ -904,7 +899,7 @@ class cMainMenu extends Phaser.Scene {
         if (index > 0) {
             //AI-Level
             var button = this.newSprite(x + 510, y + 170 + index * step, "aiLevel", index, "images", "aiLevel" + this.newGameSettings.tribes[index].aiLevel, 0.5);
-            if (this.mobile == true) { button.scale = 0.6; } else { button.scale = 0.4; }
+            if (game.mobile == true) { button.scale = 0.6; } else { button.scale = 0.4; }
             button.on('pointerup', function (button, index) {
                 this.newGameSettings.tribes[index].aiLevel += 1;
                 if (this.newGameSettings.tribes[index].aiLevel > this.gameData.aiLevelMax) {

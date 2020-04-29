@@ -31,8 +31,7 @@ class cSound extends Phaser.Scene {
 
         //define the sound effect variable
         this.sfx = this.sound.addAudioSprite('sfx');
-        this.sfx.mute = !this.settings.sfx;
-        
+
         //listen to soundevents
         game.events.on('toSoundMsg', function (data) {
             this.newMessage(data);
@@ -41,7 +40,6 @@ class cSound extends Phaser.Scene {
 
     newMessage(data) {
         //console.log("sound_newMessage", this, data);
-        this.sfx.mute = !this.settings.sfx;     //ToDo: debug ... first hit emits always a sound
         switch (data.type) {
             case 'updateSettings':
                 this.settings = JSON.parse(localStorage.getItem('settings'));
@@ -50,38 +48,40 @@ class cSound extends Phaser.Scene {
                 } else if (this.settings.music == false && this.music.isPlaying == true) {
                     this.music.stop();
                 }
-                this.sfx.mute = !this.settings.sfx;
+                break;
+            case 'none':
+                this.sfx.play('none');
                 break;
             case 'btnClick':
-                this.sfx.play('click');
+                if (this.settings.sfx == true) { this.sfx.play('click'); }
                 break;
             case 'startGame':
-                this.sfx.play('bell');
+                if (this.settings.sfx == true) { this.sfx.play('bell'); }
                 break;
             case 'startBuild':
-                this.sfx.play('hammer');
+                if (this.settings.sfx == true) { this.sfx.play('hammer'); }
                 break;
             case 'cancelBuild':
-                this.sfx.play('hammerFall');
+                if (this.settings.sfx == true) { this.sfx.play('hammerFall'); }
                 break;
             case 'steeringweel':
-                this.sfx.play('bell');
+                if (this.settings.sfx == true) { this.sfx.play('bell'); }
                 break;
             case 'setSails':
-                this.sfx.play('wave');
+                if (this.settings.sfx == true) { this.sfx.play('wave'); }
                 break;
             case 'arrival':
-                this.sfx.play('shatter');
+                if (this.settings.sfx == true) { this.sfx.play('shatter'); }
                 break;
             case 'conqueredIsland':
-                this.sfx.play('warCry');
+                if (this.settings.sfx == true) { this.sfx.play('warCry'); }
                 break;
             case 'lostIsland':
-                this.sfx.play('drum');
+                if (this.settings.sfx == true) { this.sfx.play('drum'); }
                 break;
             case 'endGame':
                 //console.log("endGame", this.settings.music, this.settings.sfx);
-                if (this.settings.music == true) {
+                if (this.settings.music == true && this.settings.sfx == true) {
                     this.music.orgVolume = this.music.volume;
                     this.tweens.add({        //fadeout the background music
                         targets: this.music,
@@ -102,7 +102,7 @@ class cSound extends Phaser.Scene {
                 }
                 break;
             case 'mute':
-                this.sound.mute = data.mute;
+                this.sound.setMute(data.mute);
                 break;
             default:
                 console.log('sound_newMessage_error', this, data);
