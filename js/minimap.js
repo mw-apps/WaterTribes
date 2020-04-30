@@ -81,7 +81,7 @@ class cMiniMap extends Phaser.Scene {
     }
 
     newMessage(data) {
-        console.log("miniMap_newMessage", Date.now(), this, data);
+        //console.log("miniMap_newMessage", Date.now(), this, data);
         switch (data.type) {
             case 'init':
                 this.gameSpeed = data.gameSpeed;
@@ -189,7 +189,7 @@ class cMiniMap extends Phaser.Scene {
     }
 
     endGame(winner) {
-        console.log("endGame", Date.now(), winner);
+        //console.log("endGame", Date.now(), winner);
         //pause game
         this.gameSpeed = 0; 
         game.events.emit('toGameMsg', { type: 'update', gameSpeed: this.gameSpeed });
@@ -276,7 +276,7 @@ class cMiniMap extends Phaser.Scene {
 
     //updateRanking (games played total, ...)
     saveGameStats(tribeNr) {
-        console.log("saveGameStats", Date.now(), tribeNr);
+        //console.log("saveGameStats", Date.now(), tribeNr);
         var type;
         if (tribeNr == 1) {
             type = "win"
