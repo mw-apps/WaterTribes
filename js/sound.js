@@ -33,6 +33,7 @@ class cSound extends Phaser.Scene {
         this.sfx = this.sound.addAudioSprite('sfx');
 
         //listen to soundevents
+        game.events.off('toSoundMsg');    //remove existing listeners (second game)
         game.events.on('toSoundMsg', function (data) {
             this.newMessage(data);
         }, this);

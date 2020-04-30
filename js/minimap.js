@@ -73,6 +73,7 @@ class cMiniMap extends Phaser.Scene {
 
         // Listen for events from gameScene
         this.gameScene = this.scene.get('playGame');
+        game.events.off('toMiniMapMsg');    //remove existing listeners (second game)
         game.events.on('toMiniMapMsg', function (data) {
             this.newMessage(data);
         }, this);
@@ -80,15 +81,12 @@ class cMiniMap extends Phaser.Scene {
     }
 
     newMessage(data) {
-        //console.log("miniMap_newMessage", this, data);
+        console.log("miniMap_newMessage", Date.now(), this, data);
         switch (data.type) {
             case 'init':
                 this.gameSpeed = data.gameSpeed;
                 this.updateButtonTexture(this.bubbleGroup.children.entries[0]);
-                this.mute = data.mute;
-                this.updateButtonTexture(this.bubbleGroup.children.entries[1]);
                 this.tribeAi = data.tribeAi;
-                this.updateButtonTexture(this.bubbleGroup.children.entries[3]);
                 this.updateMiniMap();
                 break;
             case 'newIsland':
@@ -191,8 +189,9 @@ class cMiniMap extends Phaser.Scene {
     }
 
     endGame(winner) {
+        console.log("endGame", Date.now(), winner);
         //pause game
-        this.gameSpeed = 0;
+        this.gameSpeed = 0; 
         game.events.emit('toGameMsg', { type: 'update', gameSpeed: this.gameSpeed });
         this.updateButtonTexture(this.bubbleGroup.children.entries[0]);
 
@@ -277,6 +276,7 @@ class cMiniMap extends Phaser.Scene {
 
     //updateRanking (games played total, ...)
     saveGameStats(tribeNr) {
+        console.log("saveGameStats", Date.now(), tribeNr);
         var type;
         if (tribeNr == 1) {
             type = "win"
@@ -302,7 +302,7 @@ class cMiniMap extends Phaser.Scene {
             }
             if (saveObject.fastestWin > diffTime || saveObject.fastestWin == 0) { saveObject.fastestWin = diffTime; }
             if (saveObject.longestWin < diffTime) { saveObject.longestWin = diffTime; }
-        } else {
+        } else {    //loss
             saveObject.loss += 1;
             saveObject.enemiesLostTotal += this.gameScene.tribes.length - 2;
             if (saveObject.actualStreak < 0) {

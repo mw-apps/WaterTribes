@@ -170,6 +170,7 @@ class cGame extends Phaser.Scene {
             }, this);
 
         // Listen for events
+        game.events.off('toGameMsg');    //remove existing listeners (second game)
         game.events.on('toGameMsg', function (data) {
             this.newMessage(data);
         }, this);
