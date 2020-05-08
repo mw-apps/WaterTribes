@@ -786,6 +786,7 @@ class cMiniMap extends Phaser.Scene {
                 this.textGroup.killAndHide(this.infoContainer.list[i]);
                 this.infoContainer.list[i].setShadow(0, 0, "#000", 0, false, false);
             } else if (this.infoContainer.list[i].type == "Sprite") {
+                this.infoContainer.list[i].removeAllListeners();
                 this.spriteGroup.killAndHide(this.infoContainer.list[i]);
                 this.infoContainer.list[i].clearTint();
                 this.infoContainer.list[i].scale = 1;

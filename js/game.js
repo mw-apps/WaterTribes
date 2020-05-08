@@ -631,6 +631,7 @@ class cGame extends Phaser.Scene {
         tData.islands = this.islandGroup.children.entries.length;
         tData.populationMax = 0;
         tData.buildingsMax = 0;
+        tData.duration = 0;
         tData.tribes = new Array();
         for (var i = 0; i < this.tribes.length; i++) {
             tData.tribes.push({ name: "" });
@@ -655,7 +656,7 @@ class cGame extends Phaser.Scene {
         }
         if (this.statistics.length > 0) {
             tData.duration = tData.time - this.statistics[this.statistics.length - 1].time;
-        } else { tData.duration = 0; }
+        }
         //add statistic
         this.statistics.push(tData);
 
@@ -668,7 +669,7 @@ class cGame extends Phaser.Scene {
                 if (this.statistics[i].type != "resume") { durTotal += this.statistics[i].duration; }
             }
             step = durTotal / 10;
-            duration = this.statistics[0].duration;
+            //duration = this.statistics[0].duration;
             for (var i = 1; i < this.statistics.length - 1; i++) {
                 if (this.statistics[i].type != "resume") {
                     duration += this.statistics[i].duration;
@@ -686,9 +687,7 @@ class cGame extends Phaser.Scene {
                 }
             }
         }
-
         if (game.debug) { console.log("getStatistics", tData, this.statistics); }
-
     };
 }
 
