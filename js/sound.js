@@ -40,7 +40,7 @@ class cSound extends Phaser.Scene {
     }
 
     newMessage(data) {
-        console.log("sound_newMessage", data);
+        //console.log("sound_newMessage", data);
         switch (data.type) {
             case 'updateSettings':
                 this.settings = JSON.parse(localStorage.getItem('settings'));

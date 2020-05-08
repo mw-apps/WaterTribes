@@ -649,7 +649,7 @@ class cMainMenu extends Phaser.Scene {
                 f1.scale = 0.6;
                 f1.setTint(this.gameData.tribeColors[0]);
                 //island2
-                var i2 = this.newSprite(data.right - 120, data.bottom - 120, "island", 2, "images", 'island4', 0.5);
+                var i2 = this.newSprite(data.right - 120, data.bottom - 120, "island", 2, "images", 'island8', 0.5);
                 i2.scale = 0.6;
                 i2.angle = 50;
                 var f2 = this.newSprite(i2.x + 50, i2.y, "island", 1, "images", 'flag', 1);

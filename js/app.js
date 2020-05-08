@@ -10,7 +10,7 @@ window.addEventListener('beforeinstallprompt', function (event) {
 window.onload = function () {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js?version' + encodeURIComponent(version), { scope: '.' }).then(function (registration) {
-            //console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }, function (err) {
             console.log('ServiceWorker registration failed: ', err);
         });

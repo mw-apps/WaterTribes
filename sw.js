@@ -1,4 +1,4 @@
-﻿const updater = "6";  //to update the sw, i have to change at least one line of this code, so this will be it
+﻿const updater = "7";  //to update the sw, i have to change at least one line of this code, so this will be it
 const version = new URL(location).searchParams.get('version');
 const appPrefix = 'watertribes_';
 const cacheName = appPrefix + version;
@@ -11,8 +11,11 @@ var filesToCache = [
     './assets/audio/sfx.json',
     './assets/audio/sfx.mp3',
     './assets/audio/epidemicsound_Deskant_-_Sins_of_the_Fathers.mp3',
+    './assets/icons/icon_16.png',
+    './assets/icons/icon_32.png',
     './assets/icons/icon_128.png',
     './assets/icons/icon_192.png',
+    './assets/icons/icon_256.png',
     './assets/icons/icon_512.png',
     './assets/spritesheets/imageAtlas.json',
     './assets/spritesheets/imageAtlas.png',
@@ -48,10 +51,11 @@ self.addEventListener('install', function (event) {
 
 //FETCH EVENT: triggered for every request made by index page, after install.
 self.addEventListener('fetch', (event) => {
-    //console.log('sw fetch', event.request.url);
+    //console.log('sw fetch', event.request);
+    const normalizedUrl = event.request.url.replace("?mode=PWA", "");
     //Tell the browser to wait for newtwork request and respond with below
     event.respondWith(
-        caches.match(event.request).then(function (response) {
+        caches.match(normalizedUrl).then(function (response) {
             return response || fetch(event.request);
         }).catch(function (error) {
             console.log('sw fetch error', error, event);
