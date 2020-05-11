@@ -65,7 +65,7 @@ class cGame extends Phaser.Scene {
         this.cam.bounds = this.cam.getBounds();
         this.cam.setViewport(0, 0, tWidth, tHeight);
         this.camZoomMin = game.scale.width / tWidth;
-        this.camZoomMax = this.camZoomMin * 3;
+        this.camZoomMax = this.camZoomMin * 5;
         this.cam.zoom = this.camZoomMax - this.camZoomMin;  //startzoom
 
         //load the gameData and gameSettings
@@ -250,7 +250,8 @@ class cGame extends Phaser.Scene {
                 for (i = 0; i < this.tribes.length; i++) {
                     if (this.tribes[i].ai > 0) {
                         this.tribes[i].aiCounter += this.updateTimer / 2000;
-                        if (this.tribes[i].aiCounter >= 1 + 1 / this.tribes[i].aiLevel * 2) {
+                        if (this.tribes[i].aiCounter >= 6 / this.tribes[i].aiLevel) {
+                            //console.log("aiCounter", this.tribes[i].aiLevel);
                             if (this.tribes[i].ai & 1) {
                                 for (var j = 1; j < this.tribes[i].aiCounter; j++) {
                                     this.tribes[i].aiAttack(this); //call attack multiple times, if we cancel at first, try again
@@ -259,11 +260,10 @@ class cGame extends Phaser.Scene {
                             if (this.tribes[i].ai & 2) {
                                 this.tribes[i].aiBuild(this);
                             }
-                            this.tribes[i].aiCounter -= 1 + 1 / this.tribes[i].aiLevel * 1.5;
+                            this.tribes[i].aiCounter = 0;
                         }
                     }
                 }
-
                 this.updateTimer %= 50;
             }
         }
@@ -874,7 +874,7 @@ class Tribe {
                 } else {
                     switch (this.aiLevel) {
                         case 1:
-                            possibleIslands[j].neededMen += scene.islandGroup.children.entries[j].populationMax / 0.5;
+                            possibleIslands[j].neededMen += scene.islandGroup.children.entries[j].populationMax * 0.25;
                             break;
                         case 2:
                             possibleIslands[j].neededMen += scene.islandGroup.children.entries[j].populationMax * 0.5;
@@ -1051,7 +1051,7 @@ class Island extends Phaser.GameObjects.Sprite {
             }
         }
         //reset the AI counter
-        this.scene.tribes[this.tribe].aiCounter *= -1;
+        this.scene.tribes[this.tribe].aiCounter = 0;
         //show the build-Bubbles    // Debug: Replace:this.tribe != 0 => this.tribe == 1    //Show the buildBubbles from the enemies too
         if (this.tribe == 1 || (this.tribe != 0 && game.debug == true)) {
             visCounter = 0;

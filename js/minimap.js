@@ -191,8 +191,7 @@ class cMiniMap extends Phaser.Scene {
     endGame(winner) {
         //console.log("endGame", Date.now(), winner);
         //pause game
-        this.gameSpeed = 0; 
-        game.events.emit('toGameMsg', { type: 'update', gameSpeed: this.gameSpeed });
+        this.changeGameSpeed(0);
         this.updateButtonTexture(this.bubbleGroup.children.entries[0]);
 
         //end game (no update on play/doublespeed/pause)
@@ -326,10 +325,7 @@ class cMiniMap extends Phaser.Scene {
         switch (button.nr) {
             case 1: // play, fastforward, pause
                 if (this.gameScene.status != "playing") { return; }
-                this.gameSpeed += 1;
-                if (this.gameSpeed > 2) { this.gameSpeed = 0 };
-                console.log('gameSpeed', this.gameSpeed);
-                game.events.emit('toGameMsg', { type: 'update', gameSpeed: this.gameSpeed });
+                this.changeGameSpeed();
                 break;
             case 2: //mute
                 this.mute = !this.mute;
@@ -338,8 +334,7 @@ class cMiniMap extends Phaser.Scene {
                 break;
             case 3: //statistics
                 //pause game
-                this.gameSpeed = 0;
-                game.events.emit('toGameMsg', { type: 'update', gameSpeed: this.gameSpeed });
+                this.changeGameSpeed(0);
                 this.updateButtonTexture(this.bubbleGroup.children.entries[0]);
                 //show the statistics
                 this.setInfoPlate({ type: 'statistics', statistics: this.gameScene.statistics, subtype: 'islands' });
@@ -349,8 +344,7 @@ class cMiniMap extends Phaser.Scene {
                 break;
             case 5: //exit game
                 //pause game
-                this.gameSpeed = 0;
-                game.events.emit('toGameMsg', { type: 'update', gameSpeed: this.gameSpeed });
+                this.changeGameSpeed(0);
                 this.updateButtonTexture(this.bubbleGroup.children.entries[0]);
                 //quit confirm
                 this.setInfoPlate({ type: 'exit' });
@@ -360,6 +354,29 @@ class cMiniMap extends Phaser.Scene {
         }
         this.updateButtonTexture(button);
     };
+
+    changeGameSpeed(newSpeed) {
+        if (newSpeed == undefined) {
+            this.gameSpeed += 1;
+            if (this.gameSpeed > 2) { this.gameSpeed = 0; }
+        } else {
+            this.gameSpeed = newSpeed;
+        }
+        switch (this.gameSpeed) {
+            case 0:
+                //pause screen
+                this.miniMap.fillStyle(0x303030, 0.5);
+                this.miniMap.fillRect(this.scale.width * 0.5 - 250, this.scale.height * 0.33, 200, this.scale.height * 0.33);
+                this.miniMap.fillRect(this.scale.width * 0.5 + 50, this.scale.height * 0.33, 200, this.scale.height * 0.33);
+                break;
+            case 1:
+                this.miniMap.clear();   //remove pause screen
+                this.updateMiniMap();   //repaint the minimap
+                break;
+        }
+        game.events.emit('toGameMsg', { type: 'update', gameSpeed: this.gameSpeed });
+        //console.log('gameSpeed', this.gameSpeed);
+    }
 
     updateButtonTexture(button) {
         switch (button.nr) {
